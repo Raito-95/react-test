@@ -5,7 +5,8 @@ const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     userEmail: '',
-    message: ''
+    message: '',
+    csrfmiddlewaretoken: '',
   });
   const [emailError, setEmailError] = useState("");
   const [submissionStatus, setSubmissionStatus] = useState(null);
@@ -30,6 +31,21 @@ const Contact = () => {
     setFormData(prevState => ({ ...prevState, [name]: value || '' }));
   };
 
+  const getCookie = (name) => {
+    const cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -39,10 +55,14 @@ const Contact = () => {
     }
 
     try {
+      const csrfToken = getCookie('csrftoken');
+      formData.csrfmiddlewaretoken = csrfToken;
+
       const response = await fetch('https://Raito.pythonanywhere.com/submit_contact_form/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
         },
         body: JSON.stringify(formData),
       });
@@ -50,7 +70,7 @@ const Contact = () => {
       if (response.ok) {
         setSubmissionStatus('success');
         console.log('Form data submitted successfully');
-        setFormData({ name: '', userEmail: '', message: '' });
+        setFormData({ name: '', userEmail: '', message: '', csrfmiddlewaretoken: csrfToken });
         setOpenSnackbar(true);
       } else {
         setSubmissionStatus('error');
@@ -103,6 +123,11 @@ const Contact = () => {
           label="Message"
           value={formData.message}
           onChange={handleChange}
+        />
+        <input
+          type="hidden"
+          name="csrfmiddlewaretoken"
+          value={formData.csrfmiddlewaretoken}
         />
         <Button
           type="submit"
