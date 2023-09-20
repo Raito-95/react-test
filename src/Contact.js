@@ -32,7 +32,7 @@ const Contact = () => {
   };
 
   const getCookie = (name) => {
-    const cookieValue = null;
+    let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
       const cookies = document.cookie.split(';');
       for (let i = 0; i < cookies.length; i++) {

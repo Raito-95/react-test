@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Typography, 
     Button, 
@@ -11,29 +11,41 @@ import {
 } from '@mui/material';
 import EntranceAnimation from './EntranceAnimation';
 import { useNavigate } from 'react-router-dom';
-import reflections from './ReflectionsDB';
 
 const Home = () => {
-
+  const [reflections, setReflections] = useState([]);
   const [cardsToShow, setCardsToShow] = useState(3);
-
   const [animationCompleted, setAnimationCompleted] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch('https://raito.pythonanywhere.com/api/reflection_list/')
+      .then((response) => response.json())
+      .then((data) => {
+        const parsedData = JSON.parse(data);
+        
+        // Ensure that parsedData is an array
+        if (Array.isArray(parsedData)) {
+          setReflections(parsedData);
+        } else {
+          console.error('Data is not in the expected array format:', parsedData);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
 
   const handleAnimationEnd = () => {
-      setAnimationCompleted(true);
+    setAnimationCompleted(true);
   };
-
-  const navigate = useNavigate();
 
   const handleButtonClick = () => {
     navigate('/about');
   };
 
-  const sortedReflections = reflections.sort((a, b) => b.id - a.id);
-
   return (
     <div style={{ position: 'relative' }}>
-      
       {!animationCompleted && (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
           <EntranceAnimation onAnimationEnd={handleAnimationEnd} />
@@ -45,15 +57,15 @@ const Home = () => {
           <>
             {/* Intro Section */}
             <section style={{ textAlign: 'center', padding: '50px 0' }}>
-                <Typography variant="h2" gutterBottom>
-                    Welcome to My Quiet Corner
-                </Typography>
-                <Typography variant="h6" paragraph>
-                    Dive deep into my contemplations and reflections on life's ironies.
-                </Typography>
-                <Button variant="contained" color="primary" onClick={handleButtonClick}>
-                    Know More About Me
-                </Button>
+              <Typography variant="h2" gutterBottom>
+                Welcome to My Quiet Corner
+              </Typography>
+              <Typography variant="h6" paragraph>
+                Dive deep into my contemplations and reflections on life's ironies.
+              </Typography>
+              <Button variant="contained" color="primary" onClick={handleButtonClick}>
+                Know More About Me
+              </Button>
             </section>
 
             {/* My Reflections Preview */}
@@ -62,40 +74,43 @@ const Home = () => {
                 My Latest Reflections
               </Typography>
               <Grid container spacing={4}>
-                {sortedReflections.slice(0, cardsToShow).map(reflection => (
-                  <Grid item xs={12} sm={4} key={reflection.id} style={{ display: 'flex' }}>
-                    <Card style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <CardActionArea style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                {reflections.slice(0, cardsToShow).map((reflection, index) => (
+                  <Grid item xs={12} sm={4} key={index}>
+                    <Card style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                      <CardActionArea style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
                         <Box style={{ 
                           display: 'flex', 
                           justifyContent: 'center', 
                           alignItems: 'center', 
                           margin: '10px',
-                          borderRadius: '10px'
+                          borderRadius: '10px',
+                          height: '100%',
                         }}>
                           <CardMedia
                             component="img"
                             alt="Reflection Image"
                             height="140"
-                            image={reflection.imageUrl}
+                            image={reflection.fields.imageUrl}
                             style={{ 
                               objectFit: 'contain',
                               width: '100%',
+                              display: 'block',
+                              alignItems: 'flex-start',
                             }}
                           />
                         </Box>
-                        <CardContent style={{ flex: 1 }}>
-                          <Typography variant="h6">{reflection.title}</Typography>
-                          <Typography>{reflection.description}</Typography>
+                        <CardContent style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
+                          <Typography variant="h6">{reflection.fields.title}</Typography>
+                          <Typography>{reflection.fields.description}</Typography>
                         </CardContent>
                       </CardActionArea>
                     </Card>
                   </Grid>
                 ))}
               </Grid>
-              
+
               {/* Only one Read More button below the Grid */}
-              {cardsToShow < sortedReflections.length && (
+              {cardsToShow < reflections.length && (
                 <div style={{ textAlign: 'center', marginTop: '20px' }}>
                   <Button onClick={() => setCardsToShow(cardsToShow + 3)}>Read More</Button>
                 </div>
