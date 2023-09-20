@@ -1,14 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Typography, Paper, Avatar, Button, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 function About() {
-
+  const [image, setImage] = useState(null);
+  const [image_name] = useState('boss2.webp');
+  const imageUrl = `https://Raito.pythonanywhere.com/api/get_image/?image_name=${image_name}`;
   const navigate = useNavigate();
 
   const handleButtonClick = () => {
-    navigate('/contact'); 
+    navigate('/contact');
   };
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const response = await fetch(imageUrl);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        setImage(blobUrl);
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    };
+  
+    fetchImage();
+  }, [imageUrl]);
+
 
   return (
     <Container style={{ padding: '50px 20px' }}>
@@ -23,7 +44,7 @@ function About() {
         <Grid item xs={12} sm={6} md={4}>
           <Paper elevation={3} style={{ padding: '20px' }}>
             <Avatar 
-              src="/react-test/boss2.webp" 
+              src={image}
               alt="Image photo" 
               style={{ width: '150px', height: '150px', margin: '0 auto' }} 
             />
