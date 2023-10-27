@@ -10,14 +10,11 @@ import {
     CardMedia, 
     useTheme 
 } from '@mui/material';
-import EntranceAnimation from './EntranceAnimation';
 import { useNavigate } from 'react-router-dom';
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 
 const HomePage = () => {
-  const theme = useTheme();
-  
   // State to store the list of reflections
   const [reflections, setReflections] = useState([]);
   
@@ -47,7 +44,6 @@ const HomePage = () => {
 
   return (
     <>
-      <EntranceAnimation />
       <Box py={4} textAlign="center" sx={{ 
       }}>
         <Typography variant="h2" gutterBottom>

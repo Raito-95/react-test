@@ -71,7 +71,9 @@ const App = () => {
             </Routes>
           </>
         ) : (
-          <EntranceAnimation />
+          <EntranceAnimation>
+            Welcome
+          </EntranceAnimation>
         )}
         <ScrollTop>
           <Fab color="primary" size="small" aria-label="scroll back to top">
