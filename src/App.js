@@ -1,142 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import {
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
-  List,
-  ListItemText,
-  ListItemButton,
-  Switch,
-  FormControlLabel,
-  AppBar,
-  Toolbar,
-  Box,
-} from '@mui/material';
-import Drawer from '@mui/material/Drawer';
+import { HashRouter as Router, Route, Routes } from 'react-router-dom';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 
-import Fun from './Fun';
-import Home from './Home';
-import About from './About';
-import Contact from './Contact';
+import HomePage from './components/HomePage';
+import AboutPage from './components/AboutPage';
+import AnimePage from './components/AnimePage';
+import ArticlePage from './components/ArticlePage';
+import ContactPage from './components/ContactPage';
+import TopBar from './components/TopBar';
+import EntranceAnimation from './components/EntranceAnimation';
 
-import {
-  AppContainer,
-  MenuButton,
-  StyledMenuIcon,
-  ScrollToTopButton,
-  KeyboardArrowUpStyledIcon,
-} from './Styles';
+import { Fab, Zoom, useScrollTrigger, Box } from '@mui/material';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
-function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
+function ScrollTop(props) {
+  const { children } = props;
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100,
+  });
+
+  const handleClick = (event) => {
+    const anchor = (event.target.ownerDocument || document).querySelector('#back-to-top-anchor');
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  return (
+    <Zoom in={trigger}>
+      <Box onClick={handleClick} position="fixed" bottom={16} right={16} zIndex="tooltip">
+        {children}
+      </Box>
+    </Zoom>
+  );
+}
+
+const App = () => {
   const [darkMode, setDarkMode] = useState(false);
-  const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const [animationCompleted, setAnimationCompleted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimationCompleted(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const theme = createTheme({
     palette: {
       mode: darkMode ? 'dark' : 'light',
-      primary: {
-        main: '#1565C0',
-      },
-      secondary: {
-        main: '#2196F3',
-      },
     },
   });
-
-  const toggleMenu = () => {
-    setMenuOpen(prev => !prev);
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollToTop(window.scrollY > 200);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <div id="back-to-top-anchor"></div>
       <Router>
-        <AppContainer>
-          <AppBar position="sticky">
-            <Toolbar>
-              <MenuButton onClick={toggleMenu} sx={{ margin: 'auto 0' }}>
-                <StyledMenuIcon />
-              </MenuButton>
-              <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', marginLeft: '50px' }}>
-                <ListItemButton component={Link} to="/" sx={{ textAlign: 'center' }}>
-                  <ListItemText primary="Home" />
-                </ListItemButton>
-                <ListItemButton component={Link} to="/about" sx={{ textAlign: 'center' }}>
-                  <ListItemText primary="About" />
-                </ListItemButton>
-                <ListItemButton component={Link} to="/fun" sx={{ textAlign: 'center' }}>
-                  <ListItemText primary="Fun" />
-                </ListItemButton>
-                <ListItemButton component={Link} to="/contact" sx={{ textAlign: 'center' }}>
-                  <ListItemText primary="Contact" />
-                </ListItemButton>
-              </Box>
-            </Toolbar>
-          </AppBar>
-          <Drawer anchor="left" open={menuOpen} onClose={toggleMenu}>
-            <List>
-              <ListItemButton component={Link} to="/" onClick={toggleMenu}>
-                <ListItemText primary="Home" />
-              </ListItemButton>
-              <ListItemButton component={Link} to="/about" onClick={toggleMenu}>
-                <ListItemText primary="About" />
-              </ListItemButton>
-              <ListItemButton component={Link} to="/fun" onClick={toggleMenu}>
-                <ListItemText primary="Fun" />
-              </ListItemButton>
-              <ListItemButton component={Link} to="/contact" onClick={toggleMenu}>
-                <ListItemText primary="Contact" />
-              </ListItemButton>
-              <ListItemButton sx={{ padding: 1 }}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={darkMode}
-                      onChange={() => setDarkMode(prev => !prev)}
-                      name="darkModeToggle"
-                      color="primary"
-                    />
-                  }
-                  label="Dark Mode"
-                  labelPlacement="start"
-                  sx={{ marginLeft: 1 }}
-                />
-              </ListItemButton>
-            </List>
-          </Drawer>
-          {showScrollToTop && (
-            <ScrollToTopButton style={{ zIndex: 1000 }} onClick={scrollToTop}>
-              <KeyboardArrowUpStyledIcon />
-            </ScrollToTopButton>
-          )}
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/fun" element={<Fun />} />
-            <Route path="/contact" element={<Contact />} />
-          </Routes>
-        </AppContainer>
+        {animationCompleted ? (
+          <>
+            <TopBar setDarkMode={setDarkMode} darkMode={darkMode} />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/anime" element={<AnimePage />} />
+              <Route path="/article" element={<ArticlePage />} />
+              <Route path="/contact" element={<ContactPage />} />
+            </Routes>
+          </>
+        ) : (
+          <EntranceAnimation />
+        )}
+        <ScrollTop>
+          <Fab color="primary" size="small" aria-label="scroll back to top">
+            <ArrowUpwardIcon />
+          </Fab>
+        </ScrollTop>
       </Router>
     </ThemeProvider>
   );
-}
+};
 
 export default App;
