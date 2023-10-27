@@ -5,12 +5,12 @@ const EntranceAnimation = styled.div`
     0% {
       transform: translateX(-100%) scale(0.5) rotate(-45deg);
       opacity: 0;
-      background-color: rgba(255, 255, 255, 0.7); // white flash
+      background-color: rgba(33, 150, 243, 0.7); // Default blue color with transparency
     }
     50% {
       transform: translateX(0%) scale(1.2) rotate(20deg);
       opacity: 0.5;
-      background-color: rgba(255, 255, 255, 0.4); // white flash
+      background-color: rgba(33, 150, 243, 0.4); // Slightly less transparent blue
     }
     100% {
       transform: translateX(0%) scale(1) rotate(0deg);
@@ -20,6 +20,12 @@ const EntranceAnimation = styled.div`
   }
 
   animation: fancyEntrance 2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
 `;
 
 export default EntranceAnimation;
