@@ -7,8 +7,7 @@ import {
     Card, 
     CardContent, 
     CardActionArea, 
-    CardMedia, 
-    useTheme 
+    CardMedia,  
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 

@@ -24,8 +24,13 @@ const EntranceAnimation = styled.div`
   justify-content: center;
   align-items: center;
   color: white;
-  font-size: 24px;
+  font-size: 48px;
   font-weight: bold;
+  position: fixed; // This will make it overlay on top of other content
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0; // These will make it stretch to full viewport
 `;
 
 export default EntranceAnimation;
