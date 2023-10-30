@@ -17,6 +17,7 @@ function AboutPage() {
   const imageUrl = `${BASE_API_URL}get_image/?image_name=${imageName}`;
   const navigate = useNavigate();
 
+  // Fetch the profile image on component mount
   useEffect(() => {
     const fetchImage = async () => {
       try {
@@ -38,6 +39,7 @@ function AboutPage() {
   return (
     <Box p={4} sx={{ 
     }}>
+      {/* Display profile image and header content */}
       <Box display="flex" flexDirection="column" alignItems="center">
         <Avatar 
           src={image}
@@ -54,14 +56,15 @@ function AboutPage() {
       
       <Divider variant="middle" sx={{ my: 4 }} />
 
+      {/* Introduction to the journey */}
       <Typography variant="h4" gutterBottom>
         Embarking on a Journey
       </Typography>
       <Typography variant="body1" paragraph>
         Every twist and turn, every high and low, is a new chapter in the story of life. Dive deep into my introspections as we navigate through this incredible journey together.
       </Typography>
-      {/* ... More paragraphs or other content ... */}
 
+      {/* Navigation buttons to other sections */}
       <Box mt={5} textAlign="center">
         <Stack direction="row" spacing={2} justifyContent="center">
           <Button 

@@ -20,9 +20,11 @@ const BASE_API_URL = process.env.REACT_APP_API_BASE_URL + 'anime_list/';
 const seasonOrder = ['Fall', 'Summer', 'Spring', 'Winter'];
 
 function AnimePage() {
+  // States for the filtered animes and search term
   const [filteredAnimes, setFilteredAnimes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Initial anime data setup
   const [animeData, setAnimeData] = useState({
     list: [],
     year: new Date().getFullYear(),
@@ -30,6 +32,7 @@ function AnimePage() {
     maxYear: new Date().getFullYear()
   });
 
+  // Fetch anime list on component mount
   useEffect(() => {
     axios.get(BASE_API_URL)
       .then(response => {
@@ -56,6 +59,7 @@ function AnimePage() {
       .catch(error => console.error("Error fetching anime list:", error));
   }, []);
 
+  // Update the filtered animes based on the year
   useEffect(() => {
     if (animeData.list.length) {
       const filtered = animeData.list.filter(anime => anime.year === animeData.year);
@@ -63,25 +67,28 @@ function AnimePage() {
     }
   }, [animeData]);
 
+  // Filter animes based on the selected year
+  const handleYearFilter = useCallback((selectedYear) => {
+    const filtered = animeData.list.filter(anime => anime.year === selectedYear);
+    setFilteredAnimes(filtered);
+  }, [animeData.list]);
+
+  // Filter animes based on the search term
   const handleSearch = useCallback((term) => {
     if (term) {
-      const filtered = animeData.list.filter(anime => 
-        anime.name.toLowerCase().includes(term.toLowerCase())
-      );
-      setFilteredAnimes(filtered);
+        const filtered = animeData.list.filter(anime => 
+            anime.name.toLowerCase().includes(term.toLowerCase())
+        );
+        setFilteredAnimes(filtered);
     } else {
-      handleYearFilter(animeData.year);
+        handleYearFilter(animeData.year);
     }
-  }, [animeData]);
+  }, [animeData, handleYearFilter]);
 
+  // Watch for changes in the search term and apply filtering
   useEffect(() => {
     handleSearch(searchTerm);
   }, [searchTerm, animeData, handleSearch]);
-
-  const handleYearFilter = (selectedYear) => {
-    const filtered = animeData.list.filter(anime => anime.year === selectedYear);
-    setFilteredAnimes(filtered);
-  };
 
   return (
     <Container>
@@ -157,6 +164,7 @@ function AnimePage() {
                       height="140"
                       image={anime.image_url}
                       alt={anime.name}
+                      onError={() => console.log('Failed to load image for', anime.name)}
                     />
                     <CardContent>
                       <Typography variant="h6" noWrap>

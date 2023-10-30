@@ -12,23 +12,29 @@ import getCSRFToken from './csrfToken';
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 
 const ContactPage = () => {
+  // State to store form data
   const [formData, setFormData] = useState({
     Name: '',
     Email: '',
     Message: '',
   });
+
+  // State to manage email validation error and notifications
   const [emailError, setEmailError] = useState("");
   const [notification, setNotification] = useState(null);
 
+   // Validate email format
   const isValidEmail = (email) => {
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return regex.test(email);
   };
 
+  // Update form data based on user input
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "userEmail" && !isValidEmail(value)) {
+    // Validate email format
+    if (name === "Email" && !isValidEmail(value)) {
       setEmailError("Invalid email format");
     } else {
       setEmailError("");
@@ -37,15 +43,20 @@ const ContactPage = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
   
+    // Ensure email is valid
     if (emailError) {
       setNotification({ type: 'error', message: "Invalid email address." });
       return;
     }
   
+    // Fetch and set CSRF token
     const csrfToken = getCSRFToken();
+
+    // Debugging step: Log all cookies (This should be removed in a production environment!)
     document.addEventListener("DOMContentLoaded", function() {
       const printAllCookies = () => {
         const cookies = document.cookie.split(';');
@@ -56,11 +67,14 @@ const ContactPage = () => {
     
       printAllCookies();
     });
+
+    // Handle CSRF token errors
     if (!csrfToken) {
       setNotification({ type: 'error', message: "Unable to get security token. Please try again later." });
       return;
     }
   
+    // Send form data to server
     try {
       const response = await fetch(`${BASE_API_URL}submit_contact_form/`, {
         method: 'POST',
@@ -72,6 +86,7 @@ const ContactPage = () => {
         credentials: 'include', 
       });
     
+      // Handle server response
       if (response.ok) {
         setNotification({ type: 'success', message: "Thanks for reaching out. We'll get back to you soon." });
         setFormData({ Name: '', Email: '', Message: '' });
