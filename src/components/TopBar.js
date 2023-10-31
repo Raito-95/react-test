@@ -26,14 +26,17 @@ const StyledMenuIcon = styled(MenuIcon)(({ theme }) => ({
     },
 }));
 
-const TopBar = ({ setDarkMode }) => {
-    const [localDarkMode, setLocalDarkMode] = useState(false);
+const TopBar = ({ setThemeMode }) => {
+    // Retrieve the theme mode from localStorage or set to 'light' as default
+    const storedThemeMode = localStorage.getItem('themeMode') || 'light';
+    const [currentThemeMode, setCurrentThemeMode] = useState(storedThemeMode);
     const [drawerOpen, setDrawerOpen] = useState(false);
-
-    const toggleDarkMode = () => {
-        const newMode = !localDarkMode;
-        setLocalDarkMode(newMode);
-        setDarkMode(newMode);
+  
+    // Toggle the theme mode and update in both state and parent component
+    const toggleThemeMode = () => {
+      const newMode = currentThemeMode === 'dark' ? 'light' : 'dark';
+      setCurrentThemeMode(newMode);
+      setThemeMode(newMode);
     };
 
     return (
@@ -52,8 +55,8 @@ const TopBar = ({ setDarkMode }) => {
                     <GitHubIcon />
                 </IconButton>
 
-                <IconButton color="inherit" onClick={toggleDarkMode}>
-                    {localDarkMode ? <Brightness7 /> : <Brightness4 />}
+                <IconButton color="inherit" onClick={toggleThemeMode}>
+                    {toggleThemeMode ? <Brightness7 /> : <Brightness4 />}
                 </IconButton>
 
                 {/* Drawer for mobile view */}

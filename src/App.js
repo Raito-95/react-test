@@ -37,13 +37,15 @@ function ScrollTop(props) {
   );
 }
 
-// App component - Main application entry point
 const App = () => {
   // Retrieve previous visit status from session storage
   const hasVisitedBefore = sessionStorage.getItem('hasVisited');
 
-  // States to manage dark mode and animation completion
-  const [darkMode, setDarkMode] = useState(false);
+  // Retrieve the theme mode from localStorage or set to 'light' as default
+  const storedThemeMode = localStorage.getItem('themeMode') || 'light';
+  
+  // States to manage theme mode and animation completion
+  const [themeMode, setThemeMode] = useState(storedThemeMode);
   const [animationCompleted, setAnimationCompleted] = useState(!!hasVisitedBefore);
 
   // Timeout for animation completion
@@ -61,10 +63,15 @@ const App = () => {
     }
   }, [hasVisitedBefore]);
 
+  // Store the theme mode in localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('themeMode', themeMode);
+  }, [themeMode]);
+
   // Create theme for the application, including setting the font
   const theme = createTheme({
     palette: {
-      mode: darkMode ? 'dark' : 'light',
+      mode: themeMode,
     },
     typography: {
       fontFamily: '"Georgia", serif',
@@ -72,16 +79,13 @@ const App = () => {
   });
 
   return (
-    // ThemeProvider wraps the components, providing them the theme styling
     <ThemeProvider theme={theme}>
-      <CssBaseline />  // Reset and baseline styling for browsers
-      <div id="back-to-top-anchor"></div>  // Anchor for the scroll to top functionality
+      <CssBaseline />
+      <div id="back-to-top-anchor"></div>
       <Router>
         {animationCompleted ? (
           <>
-            // TopBar component for navigation and dark mode toggle
-            <TopBar setDarkMode={setDarkMode} darkMode={darkMode} />
-            // Routes for different pages in the application
+            <TopBar setThemeMode={setThemeMode} themeMode={themeMode} />
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />
@@ -91,12 +95,10 @@ const App = () => {
             </Routes>
           </>
         ) : (
-          // Entrance animation for first-time visitors
           <EntranceAnimation>
             Welcome
           </EntranceAnimation>
         )}
-        // Floating button to scroll back to the top
         <ScrollTop>
           <Fab color="primary" size="small" aria-label="scroll back to top">
             <ArrowUpwardIcon />
