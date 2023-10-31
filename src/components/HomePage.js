@@ -76,12 +76,11 @@ const HomePage = () => {
                   />
                 </Box>
                 {/* Description with scrollable container */}
-                <Box sx={{ maxHeight: '200px', overflow: 'auto' }}>
+                <Box sx={{ maxHeight: '220px', overflow: 'auto' }}>
                   <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1 }}>
                     <Typography 
                       gutterBottom 
-                      variant="h6" 
-                      sx={{ height: '40px'}}
+                      variant="subtitle2" 
                     >
                       {reflection.fields.title}
                     </Typography>
