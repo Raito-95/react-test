@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { 
-    Container, 
-    Grid, 
-    Typography, 
-    TextField, 
-    IconButton, 
-    InputAdornment, 
-    Card, 
-    CardContent, 
-    Chip
+  Container, 
+  Grid, 
+  Typography, 
+  TextField, 
+  IconButton, 
+  InputAdornment, 
+  Card, 
+  CardContent, 
+  Chip
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
@@ -160,23 +160,23 @@ function AnimePage() {
               {animesForSeason.map(anime => (
                 <Grid key={anime.name} item xs={12} sm={6} md={4} lg={3}>
                   <Card component="a" href={anime.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                      <div
-                          style={{
-                              height: '180px',
-                              width: '100%',
-                              backgroundImage: `url(${anime.image_url})`,
-                              backgroundSize: 'contain',
-                              backgroundPosition: 'center',
-                              backgroundRepeat: 'no-repeat',
-                          }}
-                      ></div>
-                      <CardContent>
-                          <Typography variant="subtitle1" align="center">
-                              {anime.name}
-                          </Typography>
-                      </CardContent>
+                    <div
+                      style={{
+                        height: '180px',
+                        width: '100%',
+                        backgroundImage: `url(${anime.image_url})`,
+                        backgroundSize: 'contain',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                      }}
+                    ></div>
+                    <CardContent>
+                      <Typography variant="subtitle1" align="center">
+                        {anime.name}
+                      </Typography>
+                    </CardContent>
                   </Card>
-              </Grid>
+                </Grid>
               ))}
             </Grid>
           </div>

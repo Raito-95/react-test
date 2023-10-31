@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Typography, 
-    Button, 
-    Box, 
-    Grid, 
-    Card, 
-    CardContent, 
-    CardActionArea, 
-    CardMedia,  
+import {
+  Typography,
+  Button,
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  CardActionArea,
+  CardMedia,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,9 +16,9 @@ const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 const HomePage = () => {
   // State to store the list of reflections
   const [reflections, setReflections] = useState([]);
-  
+
   // State to determine how many cards to display
-  const [displayCount, setDisplayCount] = useState(9); 
+  const [displayCount, setDisplayCount] = useState(9);
   const navigate = useNavigate();
 
   // Fetching the reflection data on component mount
@@ -43,7 +43,7 @@ const HomePage = () => {
 
   return (
     <>
-      <Box py={4} textAlign="center" sx={{ 
+      <Box py={4} textAlign="center" sx={{
       }}>
         <Typography variant="h2" gutterBottom>
           Whispers of the Heart
@@ -51,8 +51,8 @@ const HomePage = () => {
         <Typography variant="h5" paragraph>
           A symphony of thoughts, dreams, and musings.
         </Typography>
-        <Button 
-          variant="outlined" 
+        <Button
+          variant="outlined"
           color="primary"
           onClick={() => navigate('/about')}
         >
@@ -78,14 +78,14 @@ const HomePage = () => {
                 {/* Description with scrollable container */}
                 <Box sx={{ maxHeight: '200px', overflow: 'auto' }}>
                   <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1 }}>
-                    <Typography 
-                      gutterBottom 
-                      variant="subtitle1" 
+                    <Typography
+                      gutterBottom
+                      variant="subtitle1"
                     >
                       {reflection.fields.title}
                     </Typography>
-                    <Typography 
-                      variant="body2" 
+                    <Typography
+                      variant="body2"
                       color="textSecondary"
                     >
                       {reflection.fields.description}
@@ -114,8 +114,8 @@ const HomePage = () => {
         <Typography variant="h6" paragraph>
           Have stories of your own? Let's weave our tales together.
         </Typography>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           color="primary"
           onClick={() => navigate('/contact')}
         >
