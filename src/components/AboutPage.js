@@ -13,7 +13,7 @@ const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 
 function AboutPage() {
   const [image, setImage] = useState(null);
-  const [imageName] = useState('boss2.webp');
+  const [imageName] = useState('boss.png');
   const imageUrl = `${BASE_API_URL}get_image/?image_name=${imageName}`;
   const navigate = useNavigate();
 
