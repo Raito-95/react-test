@@ -37,31 +37,51 @@ function ScrollTop(props) {
   );
 }
 
+// App component - Main application entry point
 const App = () => {
-  const [darkMode, setDarkMode] = useState(false);
-  const [animationCompleted, setAnimationCompleted] = useState(false);
+  // Retrieve previous visit status from session storage
+  const hasVisitedBefore = sessionStorage.getItem('hasVisited');
 
+  // States to manage dark mode and animation completion
+  const [darkMode, setDarkMode] = useState(false);
+  const [animationCompleted, setAnimationCompleted] = useState(!!hasVisitedBefore);
+
+  // Timeout for animation completion
   useEffect(() => {
     const timer = setTimeout(() => {
       setAnimationCompleted(true);
     }, 2000);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timer);  // Cleanup timer on component unmount
   }, []);
 
+  // Check if the site has been visited before and update session storage
+  useEffect(() => {
+    if (!hasVisitedBefore) {
+      sessionStorage.setItem('hasVisited', 'true');
+    }
+  }, [hasVisitedBefore]);
+
+  // Create theme for the application, including setting the font
   const theme = createTheme({
     palette: {
       mode: darkMode ? 'dark' : 'light',
     },
+    typography: {
+      fontFamily: '"Georgia", serif',
+    },
   });
 
   return (
+    // ThemeProvider wraps the components, providing them the theme styling
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <div id="back-to-top-anchor"></div>
+      <CssBaseline />  // Reset and baseline styling for browsers
+      <div id="back-to-top-anchor"></div>  // Anchor for the scroll to top functionality
       <Router>
         {animationCompleted ? (
           <>
+            // TopBar component for navigation and dark mode toggle
             <TopBar setDarkMode={setDarkMode} darkMode={darkMode} />
+            // Routes for different pages in the application
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />
@@ -71,10 +91,12 @@ const App = () => {
             </Routes>
           </>
         ) : (
+          // Entrance animation for first-time visitors
           <EntranceAnimation>
             Welcome
           </EntranceAnimation>
         )}
+        // Floating button to scroll back to the top
         <ScrollTop>
           <Fab color="primary" size="small" aria-label="scroll back to top">
             <ArrowUpwardIcon />
