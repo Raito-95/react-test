@@ -158,11 +158,18 @@ function AnimePage() {
             </Typography>
             <Grid container spacing={3} style={{ marginTop: 20 }}>
               {animesForSeason.map(anime => (
-                <Grid key={anime.name} item xs={12} sm={6} md={4} lg={3}>
-                  <Card component="a" href={anime.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                <Grid key={anime.name} item xs={12} sm={6} md={4} lg={4} xl={3}>
+                  <Card 
+                    component="a" 
+                    href={anime.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    style={{ textDecoration: 'none' }}
+                    title={anime.title}
+                  >
                     <div
                       style={{
-                        height: '180px',
+                        height: '200px',
                         width: '100%',
                         backgroundImage: `url(${anime.image_url})`,
                         backgroundSize: 'contain',
