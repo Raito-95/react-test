@@ -63,24 +63,23 @@ const HomePage = () => {
       <Grid container spacing={3}>
         {reflections.slice(0, displayCount).map((reflection, index) => (
           <Grid item xs={12} sm={6} md={4} lg={4} xl={3} key={index}>
-            <Card elevation={3} sx={{ width: '300px', height: '420px', display: 'flex', flexDirection: 'column', margin: 3 }}>
+            <Card elevation={3} sx={{ height: '420px', display: 'flex', flexDirection: 'column', margin: 3 }}>
               <CardActionArea style={{ flex: 1 }}>
-                <Box sx={{ height: '180px', display: 'flex', alignItems: 'start', justifyContent: 'center' }}>
+                <Box sx={{ height: '200px', display: 'flex', alignItems: 'start', justifyContent: 'center' }}>
                   <CardMedia
                     component="img"
                     alt="Reflection Image"
-                    height="180"
+                    height="200"
                     image={reflection.fields.imageUrl}
                     title={reflection.fields.title}
-                    sx={{ objectFit: 'contain', paddingLeft: '5px', paddingRight: '5px' }}
+                    sx={{ objectFit: 'contain', paddingLeft: '10px', paddingRight: '10px' }}
                   />
                 </Box>
-                {/* Description with scrollable container */}
                 <Box sx={{ maxHeight: '200px', overflow: 'auto' }}>
                   <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1 }}>
                     <Typography
                       gutterBottom
-                      variant="subtitle1"
+                      variant="subtitle2"
                     >
                       {reflection.fields.title}
                     </Typography>
