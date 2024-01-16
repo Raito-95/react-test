@@ -3,11 +3,11 @@ import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
-import HomePage from './components/HomePage';
-import AboutPage from './components/AboutPage';
-import AnimePage from './components/AnimePage';
-import ArticlePage from './components/ArticlePage';
-import ContactPage from './components/ContactPage';
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import AnimePage from './pages/AnimePage';
+import ArticlePage from './pages/ArticlePage';
+import ContactPage from './pages/ContactPage';
 import TopBar from './components/TopBar';
 import EntranceAnimation from './components/EntranceAnimation';
 
