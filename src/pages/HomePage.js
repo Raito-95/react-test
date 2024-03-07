@@ -26,11 +26,11 @@ const HomePage = () => {
     fetch(`${BASE_API_URL}reflection_list/`)
       .then((response) => response.json())
       .then((data) => {
-        const parsedData = JSON.parse(data);
-        if (Array.isArray(parsedData)) {
-          setReflections(parsedData);
+        console.log(data);
+        if (Array.isArray(data)) {
+          setReflections(data);
         } else {
-          console.error('Data format mismatch:', parsedData);
+          console.error('Data format mismatch:', data);
         }
       })
       .catch((error) => console.error('Error fetching data:', error));
@@ -70,8 +70,8 @@ const HomePage = () => {
                     component="img"
                     alt="Reflection Image"
                     height="200"
-                    image={reflection.fields.imageUrl}
-                    title={reflection.fields.title}
+                    image={reflection.image_url}
+                    title={reflection.title}
                     sx={{ objectFit: 'contain', paddingLeft: '10px', paddingRight: '10px' }}
                   />
                 </Box>
@@ -81,13 +81,13 @@ const HomePage = () => {
                       gutterBottom
                       variant="subtitle2"
                     >
-                      {reflection.fields.title}
+                      {reflection.title}
                     </Typography>
                     <Typography
                       variant="body2"
                       color="textSecondary"
                     >
-                      {reflection.fields.description}
+                      {reflection.description}
                     </Typography>
                   </CardContent>
                 </Box>

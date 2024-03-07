@@ -15,7 +15,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
-const BASE_API_URL = process.env.REACT_APP_API_BASE_URL + 'anime_list/';
+const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 const seasonOrder = ['Fall', 'Summer', 'Spring', 'Winter'];
 
 function AnimePage() {
@@ -33,7 +33,7 @@ function AnimePage() {
 
   // Fetch anime list on component mount
   useEffect(() => {
-    axios.get(BASE_API_URL)
+    axios.get(`${BASE_API_URL}anime_list/`)
       .then(response => {
         const sortedList = response.data.sort((a, b) => {
           if (a.year !== b.year) {
