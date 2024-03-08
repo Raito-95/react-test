@@ -1,23 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { 
-    Box, 
-    Typography, 
-    Divider, 
-    Button, 
-    Stack, 
-    Avatar 
-} from '@mui/material';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Box, Typography, Divider, Button, Stack, Avatar, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 
 function AboutPage() {
   const [image, setImage] = useState(null);
-  const [imageName] = useState('boss.png');
-  const imageUrl = `${BASE_API_URL}get_image/?image_name=${imageName}`;
+  const [loading, setLoading] = useState(true);
+  const imageName = 'boss.png';
+  const imageUrl = useMemo(() => `${BASE_API_URL}get_image/?image_name=${imageName}`, [imageName]);
   const navigate = useNavigate();
 
-  // Fetch the profile image on component mount
   useEffect(() => {
     const fetchImage = async () => {
       try {
@@ -30,22 +23,26 @@ function AboutPage() {
         setImage(blobUrl);
       } catch (error) {
         console.error('Fetch error:', error);
+      } finally {
+        setLoading(false);
       }
     };
   
     fetchImage();
-  }, [imageUrl]);
+  }, []);
 
   return (
-    <Box p={4} sx={{ 
-    }}>
-      {/* Display profile image and header content */}
+    <Box p={4}>
       <Box display="flex" flexDirection="column" alignItems="center">
-        <Avatar 
-          src={image}
-          alt="Profile Image"
-          sx={{ width: 150, height: 150, mb: 2 }} 
-        />
+        {loading ? (
+          <CircularProgress sx={{ mb: 2 }} />
+        ) : (
+          <Avatar 
+            src={image}
+            alt="Profile Image"
+            sx={{ width: 150, height: 150, mb: 2 }} 
+          />
+        )}
         <Typography variant="h3" gutterBottom>
           Raito's Musings
         </Typography>
@@ -56,7 +53,6 @@ function AboutPage() {
       
       <Divider variant="middle" sx={{ my: 4 }} />
 
-      {/* Introduction to the journey */}
       <Typography variant="h4" gutterBottom>
         Embarking on a Journey
       </Typography>
@@ -64,7 +60,6 @@ function AboutPage() {
         Every twist and turn, every high and low, is a new chapter in the story of life. Dive deep into my introspections as we navigate through this incredible journey together.
       </Typography>
 
-      {/* Navigation buttons to other sections */}
       <Box mt={5} textAlign="center">
         <Stack direction="row" spacing={2} justifyContent="center">
           <Button 

@@ -4,47 +4,56 @@ import {
   Button,
   Box,
   Grid,
-  Card,
-  CardContent,
-  CardActionArea,
-  CardMedia,
+  CircularProgress,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import ReflectionCard from '../components/ReflectionCard';
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 
 const HomePage = () => {
-  // State to store the list of reflections
   const [reflections, setReflections] = useState([]);
-
-  // State to determine how many cards to display
   const [displayCount, setDisplayCount] = useState(9);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Fetching the reflection data on component mount
   useEffect(() => {
+    setIsLoading(true);
     fetch(`${BASE_API_URL}reflection_list/`)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then((data) => {
-        console.log(data);
         if (Array.isArray(data)) {
-          setReflections(data);
+          const sortedData = data.sort((a, b) => b.id - a.id);
+          setReflections(sortedData);
         } else {
-          console.error('Data format mismatch:', data);
+          throw new Error('Data format mismatch');
         }
       })
-      .catch((error) => console.error('Error fetching data:', error));
+      .catch((error) => {
+        setError(error.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
-  // Handler for the "Load More" button
   const handleLoadMore = () => {
-    setDisplayCount(prevCount => prevCount + 9); // Increase the number of cards displayed by 9
+    setDisplayCount(prevCount => prevCount + 9);
   };
+
+  if (error) {
+    return <Typography variant="h6" color="error">{error}</Typography>;
+  }
 
   return (
     <>
-      <Box py={4} textAlign="center" sx={{
-      }}>
+      <Box py={4} textAlign="center">
         <Typography variant="h2" gutterBottom>
           Whispers of the Heart
         </Typography>
@@ -60,45 +69,21 @@ const HomePage = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={3}>
-        {reflections.slice(0, displayCount).map((reflection, index) => (
-          <Grid item xs={12} sm={6} md={4} lg={4} xl={3} key={index}>
-            <Card elevation={3} sx={{ height: '420px', display: 'flex', flexDirection: 'column', margin: 3 }}>
-              <CardActionArea style={{ flex: 1 }}>
-                <Box sx={{ height: '200px', display: 'flex', alignItems: 'start', justifyContent: 'center' }}>
-                  <CardMedia
-                    component="img"
-                    alt="Reflection Image"
-                    height="200"
-                    image={reflection.image_url}
-                    title={reflection.title}
-                    sx={{ objectFit: 'contain', paddingLeft: '10px', paddingRight: '10px' }}
-                  />
-                </Box>
-                <Box sx={{ maxHeight: '200px', overflow: 'auto' }}>
-                  <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1 }}>
-                    <Typography
-                      gutterBottom
-                      variant="subtitle2"
-                    >
-                      {reflection.title}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                    >
-                      {reflection.description}
-                    </Typography>
-                  </CardContent>
-                </Box>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={3}>
+          {reflections.slice(0, displayCount).map((reflection) => (
+            <Grid item xs={12} sm={6} md={4} lg={4} xl={3} key={reflection.id}>
+              <ReflectionCard reflection={reflection} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
 
-      {/* Display the "Load More" button only if there are more reflections to show */}
-      {displayCount < reflections.length && (
+      {!isLoading && displayCount < reflections.length && (
         <Box textAlign="center" mt={4}>
           <Button variant="contained" onClick={handleLoadMore}>
             Load More

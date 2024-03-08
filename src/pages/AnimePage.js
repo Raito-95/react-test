@@ -9,21 +9,18 @@ import {
   InputAdornment, 
   Card, 
   CardContent, 
-  Chip
+  Select,
+  MenuItem,
+  FormControl
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 const seasonOrder = ['Fall', 'Summer', 'Spring', 'Winter'];
 
 function AnimePage() {
-  // States for the filtered animes and search term
   const [filteredAnimes, setFilteredAnimes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Initial anime data setup
   const [animeData, setAnimeData] = useState({
     list: [],
     year: new Date().getFullYear(),
@@ -31,7 +28,6 @@ function AnimePage() {
     maxYear: new Date().getFullYear()
   });
 
-  // Fetch anime list on component mount
   useEffect(() => {
     axios.get(`${BASE_API_URL}anime_list/`)
       .then(response => {
@@ -58,7 +54,6 @@ function AnimePage() {
       .catch(error => console.error("Error fetching anime list:", error));
   }, []);
 
-  // Update the filtered animes based on the year
   useEffect(() => {
     if (animeData.list.length) {
       const filtered = animeData.list.filter(anime => anime.year === animeData.year);
@@ -66,13 +61,11 @@ function AnimePage() {
     }
   }, [animeData]);
 
-  // Filter animes based on the selected year
   const handleYearFilter = useCallback((selectedYear) => {
     const filtered = animeData.list.filter(anime => anime.year === selectedYear);
     setFilteredAnimes(filtered);
   }, [animeData.list]);
 
-  // Filter animes based on the search term
   const handleSearch = useCallback((term) => {
     if (term) {
         const filtered = animeData.list.filter(anime => 
@@ -84,7 +77,6 @@ function AnimePage() {
     }
   }, [animeData, handleYearFilter]);
 
-  // Watch for changes in the search term and apply filtering
   useEffect(() => {
     handleSearch(searchTerm);
   }, [searchTerm, animeData, handleSearch]);
@@ -117,78 +109,70 @@ function AnimePage() {
           />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <Grid container justifyContent="space-between">
-            <IconButton 
-              onClick={() => { 
-                if(animeData.year > animeData.minYear) {
-                  const newYear = animeData.year - 1;
-                  setAnimeData(prev => ({ ...prev, year: newYear }));
-                  handleYearFilter(newYear);
-                }
+          <FormControl fullWidth>
+            <Select
+              value={animeData.year}
+              onChange={e => {
+                const newYear = e.target.value;
+                setAnimeData(prev => ({ ...prev, year: newYear }));
+                handleYearFilter(newYear);
               }}
-              disabled={animeData.year === animeData.minYear}
             >
-              <NavigateBeforeIcon />
-            </IconButton>
-            <Chip label={animeData.year} color="primary" />
-            <IconButton 
-              onClick={() => { 
-                if(animeData.year < animeData.maxYear) {
-                  const newYear = animeData.year + 1;
-                  setAnimeData(prev => ({ ...prev, year: newYear }));
-                  handleYearFilter(newYear);
-                }
-              }}
-              disabled={animeData.year === animeData.maxYear}
-            >
-              <NavigateNextIcon />
-            </IconButton>
-          </Grid>
+              {Array.from({ length: animeData.maxYear - animeData.minYear + 1 }, (_, i) => animeData.maxYear - i).map(year => (
+                <MenuItem key={year} value={year}>{year}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
       </Grid>
 
-      {seasonOrder.map(season => {
-        const animesForSeason = filteredAnimes.filter(anime => anime.season === season);
-        if (animesForSeason.length === 0) return null;
+      {filteredAnimes.length === 0 ? (
+        <Typography variant="body1" sx={{ marginTop: 2 }}>
+          No animes found.
+        </Typography>
+      ) : (
+        seasonOrder.map(season => {
+          const animesForSeason = filteredAnimes.filter(anime => anime.season === season);
+          if (animesForSeason.length === 0) return null;
 
-        return (
-          <div key={season}>
-            <Typography variant="h4" align="center" style={{ marginTop: '2em', marginBottom: '1em' }}>
-              {season}
-            </Typography>
-            <Grid container spacing={3} style={{ marginTop: 20 }}>
-              {animesForSeason.map(anime => (
-                <Grid key={anime.name} item xs={12} sm={6} md={4} lg={4} xl={3}>
-                  <Card 
-                    component="a" 
-                    href={anime.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    style={{ textDecoration: 'none' }}
-                    title={anime.title}
-                  >
-                    <div
-                      style={{
-                        height: '200px',
-                        width: '100%',
-                        backgroundImage: `url(${anime.image_url})`,
-                        backgroundSize: 'contain',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                      }}
-                    ></div>
-                    <CardContent>
-                      <Typography variant="subtitle1" align="center">
-                        {anime.name}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </div>
-        );
-      })}
+          return (
+            <div key={season}>
+              <Typography variant="h4" align="center" sx={{ marginTop: '2em', marginBottom: '1em' }}>
+                {season}
+              </Typography>
+              <Grid container spacing={3} sx={{ marginTop: 2 }}>
+                {animesForSeason.map(anime => (
+                  <Grid key={anime.url} item xs={12} sm={6} md={4} lg={4} xl={3}>
+                    <Card 
+                      component="a" 
+                      href={anime.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      sx={{ textDecoration: 'none' }}
+                    >
+                      <div
+                        style={{
+                          height: '200px',
+                          width: '100%',
+                          backgroundImage: `url(${anime.image_url})`,
+                          backgroundSize: 'contain',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                        }}
+                      ></div>
+                      <CardContent>
+                        <Typography variant="subtitle1" align="center">
+                          {anime.name}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </div>
+          );
+        })
+      )}
     </Container>
   );
 }
