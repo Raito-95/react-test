@@ -112,24 +112,13 @@ function ArticlePage() {
                       alt="Article Image"
                     />
                     <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          [theme.breakpoints.down('sm')]: {
-                            whiteSpace: 'normal',
-                          },
-                        }}
-                      >
+                      <Typography variant="h6" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', [theme.breakpoints.down('sm')]: { whiteSpace: 'normal' } }}>
                         {article.title}
                       </Typography>
-                      <Typography variant="body2" sx={{ 
-                        [theme.breakpoints.down('sm')]: {
-                          whiteSpace: 'normal'
-                        }
-                      }}>
+                      <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                        {new Date(article.date).toLocaleDateString()} 
+                      </Typography>
+                      <Typography variant="body2" sx={{ [theme.breakpoints.down('sm')]: { whiteSpace: 'normal' } }}>
                         {article.summary}
                       </Typography>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
