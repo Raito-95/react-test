@@ -7,7 +7,7 @@ const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 function AboutPage() {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(true);
-  const imageName = 'boss.png';
+  const imageName = 'boss.webp';
   const imageUrl = useMemo(() => `${BASE_API_URL}get_image/?image_name=${imageName}`, [imageName]);
   const navigate = useNavigate();
 

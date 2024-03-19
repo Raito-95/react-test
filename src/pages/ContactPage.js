@@ -1,46 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Stack, TextField, Button, Alert } from '@mui/material';
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [csrfToken, setCSRFToken] = useState('');
   const [emailError, setEmailError] = useState('');
   const [notification, setNotification] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isValidEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
+  useEffect(() => {
+    const fetchCSRFToken = async () => {
+      const response = await fetch(`${BASE_API_URL}get_csrf_token/`, { credentials: 'include' });
+      const data = await response.json();
+      setCSRFToken(data.csrfToken);
+    };
+
+    fetchCSRFToken();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'email' && !isValidEmail(value)) {
-      setEmailError('Invalid email format');
-    } else {
-      setEmailError('');
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'email') {
+      setEmailError(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Invalid email format');
     }
-    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (emailError) {
-      setNotification({ type: 'error', message: 'Invalid email address.' });
+    if (emailError || !csrfToken) {
+      setNotification({ type: 'error', message: 'Invalid email address or missing CSRF token.' });
       return;
     }
     setIsSubmitting(true);
     try {
       const response = await fetch(`${BASE_API_URL}submit_contact_form/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
+
       if (response.ok) {
         setNotification({ type: 'success', message: "Thanks for reaching out. We'll get back to you soon." });
         setFormData({ name: '', email: '', message: '' });
@@ -49,9 +54,9 @@ const ContactPage = () => {
       }
     } catch (error) {
       setNotification({ type: 'error', message: 'Error occurred. Please try again later.' });
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error submitting form:', error);
     }
+    setIsSubmitting(false);
   };
 
   return (
@@ -64,10 +69,10 @@ const ContactPage = () => {
       )}
       <form onSubmit={handleSubmit}>
         <Stack spacing={3}>
-          <TextField name="name" variant="outlined" fullWidth label="Name" value={formData.name} onChange={handleInputChange} />
-          <TextField name="email" variant="outlined" fullWidth label="Email" value={formData.email} onChange={handleInputChange} error={!!emailError} helperText={emailError} />
-          <TextField name="message" variant="outlined" fullWidth multiline rows={6} label="Message" value={formData.message} onChange={handleInputChange} />
-          <Button type="submit" fullWidth variant="contained" color="primary" disabled={isSubmitting}>Submit</Button>
+          <TextField name="name" label="Name" variant="outlined" fullWidth value={formData.name} onChange={handleInputChange} />
+          <TextField name="email" label="Email" variant="outlined" fullWidth value={formData.email} onChange={handleInputChange} error={!!emailError} helperText={emailError} />
+          <TextField name="message" label="Message" variant="outlined" fullWidth multiline rows={6} value={formData.message} onChange={handleInputChange} />
+          <Button type="submit" variant="contained" color="primary" fullWidth disabled={isSubmitting}>Submit</Button>
         </Stack>
       </form>
     </Box>
