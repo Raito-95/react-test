@@ -9,7 +9,7 @@ const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 // Function to fetch CSRF token and ensure it's set in the browser's cookies
 const fetchCSRFToken = async () => {
   // Assume you have an endpoint to get the CSRF token
-  await fetch(`${BASE_API_URL}/api/get_csrf_token/`, {
+  await fetch(`${BASE_API_URL}get_csrf_token/`, {
     credentials: 'include'  // Important to include credentials to receive the cookie
   });
 };

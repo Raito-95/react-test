@@ -12,6 +12,7 @@ const AboutPage = lazy(() => import('./pages/AboutPage'));
 const AnimePage = lazy(() => import('./pages/AnimePage'));
 const ArticlePage = lazy(() => import('./pages/ArticlePage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const SensorPage = lazy(() => import('./pages/SensorPage'));
 
 const Loading = () => (
   <div>Loading...</div>
@@ -88,6 +89,7 @@ const App = () => {
                 <Route path="/anime" element={<AnimePage />} />
                 <Route path="/article" element={<ArticlePage />} />
                 <Route path="/contact" element={<ContactPage />} />
+                <Route path="/sensor" element={<SensorPage />} />
               </Routes>
             </Suspense>
           </>

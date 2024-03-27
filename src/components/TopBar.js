@@ -77,6 +77,9 @@ const TopBar = ({ setThemeMode }) => {
             <ListItemButton component={Link} to="/contact" onClick={() => setDrawerOpen(false)}>
               <ListItemText primary="Contact" />
             </ListItemButton>
+            <ListItemButton component={Link} to="/sensor" onClick={() => setDrawerOpen(false)}>
+              <ListItemText primary="Sensor" />
+            </ListItemButton>
           </List>
         </Drawer>
       </Toolbar>
