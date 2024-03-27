@@ -9,6 +9,7 @@ import {
   Card,
   CardContent,
   CardMedia,
+  CardActionArea,
   Button,
   Dialog,
   DialogTitle,
@@ -109,61 +110,46 @@ function ArticlePage() {
           <Grid container spacing={3}>
             {filteredArticles.length > 0 ? (
               filteredArticles.map((article, index) => (
-                <Grid item xs={12} key={index} sx={{ padding: 2 }}>
-                  <Card
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "100%",
-                    }}
-                  >
-                    <CardMedia
-                      component="img"
-                      sx={{ width: 140, height: 140 }}
-                      image={article.image_url}
-                      alt={article.title}
-                    />
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography
-                        variant="h6"
-                        noWrap
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Card>
+                    <CardActionArea onClick={() => handleOpenDialog(article)}>
+                      <CardMedia
+                        component="img"
+                        image={article.image_url}
+                        alt={article.title}
                         sx={{
-                          [theme.breakpoints.down("sm")]: {
-                            whiteSpace: "normal",
-                          },
+                          height: { xs: 180, sm: 140, md: 180 },
+                          objectFit: "cover",
                         }}
-                      >
-                        {article.title}
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontStyle: "italic" }}>
-                        {new Date(article.date).toLocaleDateString()}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: "vertical",
-                        }}
-                      >
-                        {article.summary}
-                      </Typography>
-                      <Button
-                        size="small"
-                        onClick={() => handleOpenDialog(article)}
-                        sx={{ mt: 1 }}
-                      >
-                        More...
-                      </Button>
-                    </CardContent>
+                      />
+                      <CardContent>
+                        <Typography variant="h6" noWrap>
+                          {article.title}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {new Date(article.date).toLocaleDateString()}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            display: "-webkit-box",
+                            overflow: "hidden",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
+                          {article.summary}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
                   </Card>
                 </Grid>
               ))
             ) : (
-              <Typography variant="body1" sx={{ padding: 2 }}>
+              <Typography
+                variant="body1"
+                sx={{ padding: 2, textAlign: "center" }}
+              >
                 No articles found.
               </Typography>
             )}
