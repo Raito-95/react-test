@@ -1,68 +1,80 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { HashRouter as Router, Route, Routes } from 'react-router-dom';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { Fab, Zoom, useScrollTrigger, Box } from '@mui/material';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import TopBar from './components/TopBar';
-import EntranceAnimation from './components/EntranceAnimation';
+import React, { useState, useEffect, Suspense, lazy } from "react";
+import {
+  CircularProgress,
+  Fab,
+  Zoom,
+  useScrollTrigger,
+  Box,
+  createTheme,
+  ThemeProvider,
+} from "@mui/material";
+import CssBaseline from "@mui/material/CssBaseline";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import TopBar from "./components/TopBar";
+import EntranceAnimation from "./components/EntranceAnimation";
 
-const HomePage = lazy(() => import('./pages/HomePage'));
-const AboutPage = lazy(() => import('./pages/AboutPage'));
-const AnimePage = lazy(() => import('./pages/AnimePage'));
-const ArticlePage = lazy(() => import('./pages/ArticlePage'));
-const ContactPage = lazy(() => import('./pages/ContactPage'));
-const SensorPage = lazy(() => import('./pages/SensorPage'));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const AnimePage = lazy(() => import("./pages/AnimePage"));
+const ArticlePage = lazy(() => import("./pages/ArticlePage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const SensorPage = lazy(() => import("./pages/SensorPage"));
 
 const Loading = () => (
-  <div>Loading...</div>
+  <Box
+    display="flex"
+    justifyContent="center"
+    alignItems="center"
+    height="100vh"
+  >
+    <CircularProgress />
+  </Box>
 );
 
-function ScrollTop(props) {
-  const { children } = props;
+function ScrollTop({ children }) {
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 100,
   });
 
-  const handleClick = (event) => {
-    const anchor = (event.target.ownerDocument || document).querySelector('#back-to-top-anchor');
-    if (anchor) {
-      anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+  const handleClick = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <Zoom in={trigger}>
-      <Box onClick={handleClick} position="fixed" bottom={16} right={16} zIndex="tooltip">
+      <Box
+        onClick={handleClick}
+        position="fixed"
+        bottom={16}
+        right={16}
+        zIndex="tooltip"
+      >
         {children}
       </Box>
     </Zoom>
   );
 }
 
-const App = () => {
-  const hasVisitedBefore = sessionStorage.getItem('hasVisited');
-  const storedThemeMode = localStorage.getItem('themeMode') || 'light';
-  
+function App() {
+  const storedThemeMode = localStorage.getItem("themeMode") || "light";
   const [themeMode, setThemeMode] = useState(storedThemeMode);
-  const [animationCompleted, setAnimationCompleted] = useState(!!hasVisitedBefore);
+  const [animationCompleted, setAnimationCompleted] = useState(
+    sessionStorage.getItem("hasVisited")
+  );
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setAnimationCompleted(true);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!hasVisitedBefore) {
-      sessionStorage.setItem('hasVisited', 'true');
+    if (!animationCompleted) {
+      setTimeout(() => {
+        setAnimationCompleted(true);
+        sessionStorage.setItem("hasVisited", "true");
+      }, 2000);
     }
-  }, [hasVisitedBefore]);
+  }, [animationCompleted]);
 
   useEffect(() => {
-    localStorage.setItem('themeMode', themeMode);
+    localStorage.setItem("themeMode", themeMode);
   }, [themeMode]);
 
   const theme = createTheme({
@@ -77,11 +89,11 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div id="back-to-top-anchor"></div>
       <Router>
+        <div id="back-to-top-anchor" />
         {animationCompleted ? (
           <>
-            <TopBar setThemeMode={setThemeMode} themeMode={themeMode} />
+            <TopBar setThemeMode={setThemeMode} />
             <Suspense fallback={<Loading />}>
               <Routes>
                 <Route path="/" element={<HomePage />} />
@@ -94,9 +106,7 @@ const App = () => {
             </Suspense>
           </>
         ) : (
-          <EntranceAnimation>
-            Welcome
-          </EntranceAnimation>
+          <EntranceAnimation>Welcome</EntranceAnimation>
         )}
         <ScrollTop>
           <Fab color="primary" size="small" aria-label="scroll back to top">
@@ -106,6 +116,6 @@ const App = () => {
       </Router>
     </ThemeProvider>
   );
-};
+}
 
 export default App;

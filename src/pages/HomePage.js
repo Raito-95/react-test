@@ -1,13 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Typography,
-  Button,
-  Box,
-  Grid,
-  CircularProgress,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import ReflectionCard from '../components/ReflectionCard';
+import React, { useState, useEffect } from "react";
+import { Typography, Button, Box, Grid, CircularProgress } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import ReflectionCard from "../components/ReflectionCard";
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -19,36 +13,40 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setIsLoading(true);
-    fetch(`${BASE_API_URL}reflection_list/`)
-      .then((response) => {
+    const fetchReflections = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${BASE_API_URL}reflection_list/`);
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
-        return response.json();
-      })
-      .then((data) => {
+        const data = await response.json();
         if (Array.isArray(data)) {
           const sortedData = data.sort((a, b) => b.id - a.id);
           setReflections(sortedData);
         } else {
-          throw new Error('Data format mismatch');
+          throw new Error("Data format mismatch");
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         setError(error.message);
-      })
-      .finally(() => {
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    fetchReflections();
   }, []);
 
   const handleLoadMore = () => {
-    setDisplayCount(prevCount => prevCount + 9);
+    setDisplayCount((prevCount) => prevCount + 9);
   };
 
   if (error) {
-    return <Typography variant="h6" color="error">{error}</Typography>;
+    return (
+      <Typography variant="h6" color="error">
+        {error}
+      </Typography>
+    );
   }
 
   return (
@@ -63,14 +61,14 @@ const HomePage = () => {
         <Button
           variant="outlined"
           color="primary"
-          onClick={() => navigate('/about')}
+          onClick={() => navigate("/about")}
         >
           Dive Into My Journey
         </Button>
       </Box>
 
       {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress />
         </Box>
       ) : (
@@ -101,7 +99,7 @@ const HomePage = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => navigate('/contact')}
+          onClick={() => navigate("/contact")}
         >
           Connect with Me
         </Button>

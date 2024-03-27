@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -9,77 +9,102 @@ import {
   List,
   ListItemButton,
   ListItemText,
-  styled
-} from '@mui/material';
-import { Brightness4, Brightness7, Menu as MenuIcon } from '@mui/icons-material';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import GitHubIcon from '@mui/icons-material/GitHub';
+  styled,
+} from "@mui/material";
+import {
+  Brightness4,
+  Brightness7,
+  Menu as MenuIcon,
+} from "@mui/icons-material";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import GitHubIcon from "@mui/icons-material/GitHub";
 
 const StyledMenuIcon = styled(MenuIcon)(({ theme }) => ({
-  transition: 'transform 0.3s ease, color 0.3s ease',
-  '&:hover': {
+  transition: "transform 0.3s ease, color 0.3s ease",
+  "&:hover": {
     color: theme.palette.primary.dark,
-    transform: 'scale(1.1)',
+    transform: "scale(1.1)",
   },
-  '&:active': {
-    transform: 'rotate(15deg)',
+  "&:active": {
+    transform: "rotate(15deg)",
   },
 }));
 
 const TopBar = ({ setThemeMode }) => {
-  // Retrieve the theme mode from localStorage or set to 'light' as default
-  const storedThemeMode = localStorage.getItem('themeMode') || 'light';
-  const [currentThemeMode, setCurrentThemeMode] = useState(storedThemeMode);
+  const [currentThemeMode, setCurrentThemeMode] = useState(
+    localStorage.getItem("themeMode") || "light"
+  );
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Toggle the theme mode and update in both state and parent component
+  useEffect(() => {
+    setThemeMode(currentThemeMode);
+  }, [currentThemeMode, setThemeMode]);
+
   const toggleThemeMode = () => {
-    const newMode = currentThemeMode === 'dark' ? 'light' : 'dark';
+    const newMode = currentThemeMode === "dark" ? "light" : "dark";
     setCurrentThemeMode(newMode);
-    setThemeMode(newMode);
+    localStorage.setItem("themeMode", newMode);
   };
 
   return (
     <AppBar position="static">
       <Toolbar>
-        <IconButton edge="end" color="inherit" aria-label="menu" onClick={() => setDrawerOpen(true)}>
+        <IconButton
+          edge="end"
+          color="inherit"
+          aria-label="menu"
+          onClick={() => setDrawerOpen(true)}
+        >
           <StyledMenuIcon />
         </IconButton>
         <Box flexGrow={1} />
 
-        {/* Social Media Icons */}
-        <IconButton color="inherit" component="a" href="https://www.linkedin.com/in/raito-chiu-518865100/" target="_blank" rel="noopener noreferrer">
+        <IconButton
+          color="inherit"
+          component="a"
+          href="https://www.linkedin.com/in/raito-chiu-518865100/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <LinkedInIcon />
         </IconButton>
-        <IconButton color="inherit" component="a" href="https://github.com/Raito-95" target="_blank" rel="noopener noreferrer">
+        <IconButton
+          color="inherit"
+          component="a"
+          href="https://github.com/Raito-95"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <GitHubIcon />
         </IconButton>
 
         <IconButton color="inherit" onClick={toggleThemeMode}>
-          {toggleThemeMode ? <Brightness7 /> : <Brightness4 />}
+          {currentThemeMode === "dark" ? <Brightness7 /> : <Brightness4 />}
         </IconButton>
 
-        {/* Drawer for mobile view */}
-        <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <Drawer
+          anchor="left"
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+        >
           <List>
-            <ListItemButton component={Link} to="/" onClick={() => setDrawerOpen(false)}>
+            <ListItemButton
+              component={Link}
+              to="/"
+              onClick={() => setDrawerOpen(false)}
+            >
               <ListItemText primary="Home" />
             </ListItemButton>
-            <ListItemButton component={Link} to="/about" onClick={() => setDrawerOpen(false)}>
-              <ListItemText primary="About" />
-            </ListItemButton>
-            <ListItemButton component={Link} to="/anime" onClick={() => setDrawerOpen(false)}>
-              <ListItemText primary="Anime" />
-            </ListItemButton>
-            <ListItemButton component={Link} to="/article" onClick={() => setDrawerOpen(false)}>
-              <ListItemText primary="Article" />
-            </ListItemButton>
-            <ListItemButton component={Link} to="/contact" onClick={() => setDrawerOpen(false)}>
-              <ListItemText primary="Contact" />
-            </ListItemButton>
-            <ListItemButton component={Link} to="/sensor" onClick={() => setDrawerOpen(false)}>
-              <ListItemText primary="Sensor" />
-            </ListItemButton>
+            {["About", "Anime", "Article", "Contact", "Sensor"].map((text) => (
+              <ListItemButton
+                key={text}
+                component={Link}
+                to={`/${text.toLowerCase()}`}
+                onClick={() => setDrawerOpen(false)}
+              >
+                <ListItemText primary={text} />
+              </ListItemButton>
+            ))}
           </List>
         </Drawer>
       </Toolbar>

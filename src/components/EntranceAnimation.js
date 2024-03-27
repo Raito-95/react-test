@@ -1,21 +1,21 @@
-import styled from '@emotion/styled';
+import styled from "@emotion/styled";
 
 const EntranceAnimation = styled.div`
   @keyframes fancyEntrance {
     0% {
       transform: translateX(-100%) scale(0.5) rotate(-45deg);
       opacity: 0;
-      background-color: rgba(33, 150, 243, 0.7); // Default blue color with transparency
+      background-color: rgba(33, 150, 243, 0.7);
     }
     50% {
       transform: translateX(0%) scale(1.2) rotate(20deg);
       opacity: 0.5;
-      background-color: rgba(33, 150, 243, 0.4); // Slightly less transparent blue
+      background-color: rgba(33, 150, 243, 0.4);
     }
     100% {
       transform: translateX(0%) scale(1) rotate(0deg);
       opacity: 1;
-      background-color: transparent; // clear background
+      background-color: transparent;
     }
   }
 
@@ -26,11 +26,11 @@ const EntranceAnimation = styled.div`
   color: white;
   font-size: 48px;
   font-weight: bold;
-  position: fixed; // This will make it overlay on top of other content
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0; // These will make it stretch to full viewport
+  bottom: 0;
 `;
 
 export default EntranceAnimation;
