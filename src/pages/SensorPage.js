@@ -110,35 +110,38 @@ const SensorPage = () => {
 
     if ("AbsoluteOrientationSensor" in window) {
       const orientationSensor = new AbsoluteOrientationSensor({
-        frequency: 60,
+          frequency: 60,
       });
       orientationSensor.addEventListener("reading", () => {
-        const [x, y, z, w] = orientationSensor.quaternion;
-        const data = { x, y, z, w };
-        updateMaxMin("orientation", data);
-        displayData("orientation", data);
-
-        const norm = Math.sqrt(x * x + y * y + z * z + w * w);
-        const nx = x / norm;
-        const ny = y / norm;
-        const nz = z / norm;
-        const nw = w / norm;
-
-        let pitch = Math.asin(2 * (nw * nx - ny * nz));
-        let roll = Math.atan2(2 * (nw * ny + nz * nx), 1 - 2 * (nx * nx + ny * ny));
-        let yaw = Math.atan2(2 * (nw * nz + nx * ny), 1 - 2 * (ny * ny + nz * nz));
-        pitch = pitch * (180 / Math.PI);
-        roll = roll * (180 / Math.PI);
-        yaw = yaw * (180 / Math.PI);
-
-        const inclinometerData = { pitch, roll, yaw };
-
-        updateMaxMin("inclinometer", inclinometerData);
-        displayData("inclinometer", inclinometerData, "°");
+          const [x, y, z, w] = orientationSensor.quaternion;
+          const data = { x, y, z, w };
+          updateMaxMin("orientation", data);
+          displayData("orientation", data);
+  
+          const nx = x;
+          const ny = y;
+          const nz = z;
+          const nw = w;
+  
+          let pitch;
+          let sinp = 2 * (nw * ny - nz * nx);
+          if (Math.abs(sinp) >= 1) {
+              pitch = sinp < 0 ? -90 : 90;
+          } else {
+              pitch = Math.asin(sinp) * (180 / Math.PI);
+          }
+  
+          let roll = Math.atan2(2 * (nw * nx + ny * nz), 1 - 2 * (nx * nx + ny * ny)) * (180 / Math.PI);
+          let yaw = Math.atan2(2 * (nw * nz + nx * ny), 1 - 2 * (ny * ny + nz * nz)) * (180 / Math.PI);
+  
+          const inclinometerData = { pitch, roll, yaw };
+  
+          updateMaxMin("inclinometer", inclinometerData);
+          displayData("inclinometer", inclinometerData, "°");
       });
       orientationSensor.start();
       sensorsCleanup.push(() => orientationSensor.stop());
-    }
+  }
 
     return () => {
       // Cleanup all sensor listeners when the component unmounts
