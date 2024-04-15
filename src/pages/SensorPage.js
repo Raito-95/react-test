@@ -18,12 +18,14 @@ const colors = {
   pitch: "#8884d8",
   roll: "#82ca9d",
   yaw: "#ffc658",
+  compass: "#8884d8",
 };
 
 const useSensors = () => {
   const [sensorData, setSensorData] = useState({
     accelerometer: { data: {}, max: {}, min: {} },
     gravity: { data: {}, max: {}, min: {} },
+    compass: { data: {}, max: {}, min: {} },
     gyroscope: { data: {}, max: {}, min: {} },
     inclinometer: { data: {}, max: {}, min: {} },
     orientation: { data: {}, max: {}, min: {} },
@@ -31,6 +33,7 @@ const useSensors = () => {
   const [chartData, setChartData] = useState({
     accelerometer: [],
     gravity: [],
+    compass: [],
     gyroscope: [],
     inclinometer: [],
     orientation: [],
@@ -69,13 +72,18 @@ const useSensors = () => {
 
     const handleOrientationEvent = (event) => {
       const { alpha, beta, gamma } = event; // alpha: yaw, beta: pitch, gamma: roll
-      const data = {
+      const compass = 360 - alpha;
+      const inclinometerData = {
         pitch: beta,
         roll: gamma,
         yaw: alpha,
       };
-      updateMaxMin("inclinometer", data);
-      addToChartData("inclinometer", data);
+      const compassData = { compass };
+
+      updateMaxMin("inclinometer", inclinometerData);
+      addToChartData("inclinometer", inclinometerData);
+      updateMaxMin("compass", compassData);
+      addToChartData("compass", compassData);
     };
 
     window.addEventListener("deviceorientation", handleOrientationEvent);
@@ -86,60 +94,60 @@ const useSensors = () => {
     if ("Accelerometer" in window) {
       const accelerometer = new Accelerometer({ frequency: 60 });
       accelerometer.addEventListener("reading", () => {
-        const data = {
+        const accelerometerData = {
           x: accelerometer.x / 9.8,
           y: accelerometer.y / 9.8,
           z: accelerometer.z / 9.8,
         };
-        updateMaxMin("accelerometer", data);
-        addToChartData("accelerometer", data);
+        updateMaxMin("accelerometer", accelerometerData);
+        addToChartData("accelerometer", accelerometerData);
       });
       accelerometer.start();
       sensorsCleanup.push(() => accelerometer.stop());
     }
 
     if ("GravitySensor" in window) {
-      const gravitySensor = new GravitySensor({ frequency: 60 });
-      gravitySensor.addEventListener("reading", () => {
-        const data = {
-          x: gravitySensor.x / 9.8,
-          y: gravitySensor.y / 9.8,
-          z: gravitySensor.z / 9.8,
+      const gravity = new GravitySensor({ frequency: 60 });
+      gravity.addEventListener("reading", () => {
+        const gravityData = {
+          x: gravity.x / 9.8,
+          y: gravity.y / 9.8,
+          z: gravity.z / 9.8,
         };
-        updateMaxMin("gravity", data);
-        addToChartData("gravity", data);
+        updateMaxMin("gravity", gravityData);
+        addToChartData("gravity", gravityData);
       });
-      gravitySensor.start();
-      sensorsCleanup.push(() => gravitySensor.stop());
+      gravity.start();
+      sensorsCleanup.push(() => gravity.stop());
     }
 
     if ("Gyroscope" in window) {
       const gyroscope = new Gyroscope({ frequency: 60 });
       gyroscope.addEventListener("reading", () => {
-        const data = {
+        const gyroscopeData = {
           x: gyroscope.x,
           y: gyroscope.y,
           z: gyroscope.z,
         };
-        updateMaxMin("gyroscope", data);
-        addToChartData("gyroscope", data);
+        updateMaxMin("gyroscope", gyroscopeData);
+        addToChartData("gyroscope", gyroscopeData);
       });
       gyroscope.start();
       sensorsCleanup.push(() => gyroscope.stop());
     }
 
     if ("AbsoluteOrientationSensor" in window) {
-      const orientationSensor = new AbsoluteOrientationSensor({
+      const orientation = new AbsoluteOrientationSensor({
         frequency: 60,
       });
-      orientationSensor.addEventListener("reading", () => {
-        const [x, y, z, w] = orientationSensor.quaternion;
-        const data = { x, y, z, w };
-        updateMaxMin("orientation", data);
-        addToChartData("orientation", data);
+      orientation.addEventListener("reading", () => {
+        const [x, y, z, w] = orientation.quaternion;
+        const orientationData = { x, y, z, w };
+        updateMaxMin("orientation", orientationData);
+        addToChartData("orientation", orientationData);
       });
-      orientationSensor.start();
-      sensorsCleanup.push(() => orientationSensor.stop());
+      orientation.start();
+      sensorsCleanup.push(() => orientation.stop());
     }
 
     return () => sensorsCleanup.forEach((cleanup) => cleanup());
