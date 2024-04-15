@@ -1,71 +1,87 @@
-import React, { useEffect } from "react";
-import { Card, CardContent, Typography, Grid } from "@mui/material";
-
 /* global Accelerometer, GravitySensor, Gyroscope, AbsoluteOrientationSensor */
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, Typography, Grid } from "@mui/material";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 
-const SensorPage = () => {
+const colors = {
+  x: "#8884d8",
+  y: "#82ca9d",
+  z: "#ffc658",
+  w: "#f54242",
+  pitch: "#8884d8",
+  roll: "#82ca9d",
+  yaw: "#ffc658",
+};
+
+const useSensors = () => {
+  const [sensorData, setSensorData] = useState({
+    accelerometer: { data: {}, max: {}, min: {} },
+    gravity: { data: {}, max: {}, min: {} },
+    gyroscope: { data: {}, max: {}, min: {} },
+    inclinometer: { data: {}, max: {}, min: {} },
+    orientation: { data: {}, max: {}, min: {} },
+  });
+  const [chartData, setChartData] = useState({
+    accelerometer: [],
+    gravity: [],
+    gyroscope: [],
+    inclinometer: [],
+    orientation: [],
+  });
+
+  const updateMaxMin = (sensorType, newData) => {
+    const updated = { ...sensorData[sensorType] };
+    Object.keys(newData).forEach((key) => {
+      updated.max[key] = Math.max(
+        sensorData[sensorType].max[key] || -Infinity,
+        newData[key]
+      );
+      updated.min[key] = Math.min(
+        sensorData[sensorType].min[key] || Infinity,
+        newData[key]
+      );
+    });
+    updated.data = newData;
+    setSensorData((prevData) => ({ ...prevData, [sensorType]: updated }));
+  };
+
+  const addToChartData = (sensorType, newData) => {
+    setChartData((currentData) => {
+      const newDataPoint = { ...newData, timestamp: new Date().getTime() };
+      const updatedData = [...currentData[sensorType], newDataPoint];
+      return {
+        ...currentData,
+        [sensorType]:
+          updatedData.length > 100 ? updatedData.slice(-100) : updatedData,
+      };
+    });
+  };
+
   useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      const erudaScript = document.createElement("script");
-      erudaScript.src = "https://cdn.jsdelivr.net/npm/eruda";
-      document.body.appendChild(erudaScript);
-      erudaScript.onload = () => window.eruda.init();
-    }
-
-    const sensorData = {
-      accelerometer: {
-        max: { x: -Infinity, y: -Infinity, z: -Infinity },
-        min: { x: Infinity, y: Infinity, z: Infinity },
-      },
-      gravity: {
-        max: { x: -Infinity, y: -Infinity, z: -Infinity },
-        min: { x: Infinity, y: Infinity, z: Infinity },
-      },
-      gyroscope: {
-        max: { x: -Infinity, y: -Infinity, z: -Infinity },
-        min: { x: Infinity, y: Infinity, z: Infinity },
-      },
-      orientation: {
-        max: { x: -Infinity, y: -Infinity, z: -Infinity, w: -Infinity },
-        min: { x: Infinity, y: Infinity, z: Infinity, w: Infinity },
-      },
-      inclinometer: {
-        max: { pitch: -Infinity, roll: -Infinity, yaw: -Infinity },
-        min: { pitch: Infinity, roll: Infinity, yaw: Infinity },
-      },
-      compass: { max: -Infinity, min: Infinity },
-    };
-
-    const updateMaxMin = (sensorType, data) => {
-      Object.keys(data).forEach((key) => {
-        sensorData[sensorType].max[key] = Math.max(
-          sensorData[sensorType].max[key],
-          data[key]
-        );
-        sensorData[sensorType].min[key] = Math.min(
-          sensorData[sensorType].min[key],
-          data[key]
-        );
-      });
-    };
-
-    const displayData = (elementId, data, unit = "") => {
-      const displayText = Object.keys(data)
-        .map(
-          (key) =>
-            `${key.toUpperCase()}: ${data[key].toFixed(
-              2
-            )}${unit} (Max: ${sensorData[elementId].max[key].toFixed(
-              2
-            )}${unit}, Min: ${sensorData[elementId].min[key].toFixed(
-              2
-            )}${unit})`
-        )
-        .join("<br>");
-      document.getElementById(elementId).innerHTML = displayText;
-    };
-
     const sensorsCleanup = [];
+
+    const handleOrientationEvent = (event) => {
+      const { alpha, beta, gamma } = event; // alpha: yaw, beta: pitch, gamma: roll
+      const data = {
+        pitch: beta,
+        roll: gamma,
+        yaw: alpha,
+      };
+      updateMaxMin("inclinometer", data);
+      addToChartData("inclinometer", data);
+    };
+
+    window.addEventListener("deviceorientation", handleOrientationEvent);
+    sensorsCleanup.push(() =>
+      window.removeEventListener("deviceorientation", handleOrientationEvent)
+    );
 
     if ("Accelerometer" in window) {
       const accelerometer = new Accelerometer({ frequency: 60 });
@@ -76,7 +92,7 @@ const SensorPage = () => {
           z: accelerometer.z / 9.8,
         };
         updateMaxMin("accelerometer", data);
-        displayData("accelerometer", data, " g");
+        addToChartData("accelerometer", data);
       });
       accelerometer.start();
       sensorsCleanup.push(() => accelerometer.stop());
@@ -91,7 +107,7 @@ const SensorPage = () => {
           z: gravitySensor.z / 9.8,
         };
         updateMaxMin("gravity", data);
-        displayData("gravity", data, " g");
+        addToChartData("gravity", data);
       });
       gravitySensor.start();
       sensorsCleanup.push(() => gravitySensor.stop());
@@ -100,9 +116,13 @@ const SensorPage = () => {
     if ("Gyroscope" in window) {
       const gyroscope = new Gyroscope({ frequency: 60 });
       gyroscope.addEventListener("reading", () => {
-        const data = { x: gyroscope.x, y: gyroscope.y, z: gyroscope.z };
+        const data = {
+          x: gyroscope.x,
+          y: gyroscope.y,
+          z: gyroscope.z,
+        };
         updateMaxMin("gyroscope", data);
-        displayData("gyroscope", data, " °/s");
+        addToChartData("gyroscope", data);
       });
       gyroscope.start();
       sensorsCleanup.push(() => gyroscope.stop());
@@ -110,107 +130,75 @@ const SensorPage = () => {
 
     if ("AbsoluteOrientationSensor" in window) {
       const orientationSensor = new AbsoluteOrientationSensor({
-          frequency: 60,
+        frequency: 60,
       });
       orientationSensor.addEventListener("reading", () => {
-          const [x, y, z, w] = orientationSensor.quaternion;
-          const data = { x, y, z, w };
-          updateMaxMin("orientation", data);
-          displayData("orientation", data);
-  
-          const nx = x;
-          const ny = y;
-          const nz = z;
-          const nw = w;
-  
-          let pitch;
-          let sinp = 2 * (nw * ny - nz * nx);
-          if (Math.abs(sinp) >= 1) {
-              pitch = sinp < 0 ? -90 : 90;
-          } else {
-              pitch = Math.asin(sinp) * (180 / Math.PI);
-          }
-  
-          let roll = Math.atan2(2 * (nw * nx + ny * nz), 1 - 2 * (nx * nx + ny * ny)) * (180 / Math.PI);
-          let yaw = Math.atan2(2 * (nw * nz + nx * ny), 1 - 2 * (ny * ny + nz * nz)) * (180 / Math.PI);
-  
-          const inclinometerData = { pitch, roll, yaw };
-  
-          updateMaxMin("inclinometer", inclinometerData);
-          displayData("inclinometer", inclinometerData, "°");
+        const [x, y, z, w] = orientationSensor.quaternion;
+        const data = { x, y, z, w };
+        updateMaxMin("orientation", data);
+        addToChartData("orientation", data);
       });
       orientationSensor.start();
       sensorsCleanup.push(() => orientationSensor.stop());
-  }
+    }
 
-    return () => {
-      // Cleanup all sensor listeners when the component unmounts
-      sensorsCleanup.forEach((cleanup) => cleanup());
-    };
+    return () => sensorsCleanup.forEach((cleanup) => cleanup());
   }, []);
+
+  return { sensorData, chartData };
+};
+
+const SensorChart = ({ data, colors }) => {
+  return (
+    <LineChart width={400} height={200} data={data}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="timestamp" hide={true} />
+      <YAxis />
+      <Tooltip />
+      {Object.keys(data[0] || {})
+        .filter((key) => key !== "timestamp")
+        .map((axis) => (
+          <Line
+            key={axis}
+            type="monotone"
+            dataKey={axis}
+            stroke={colors[axis]}
+          />
+        ))}
+    </LineChart>
+  );
+};
+
+const SensorPage = () => {
+  const { sensorData, chartData } = useSensors();
 
   return (
     <Grid container spacing={2} style={{ padding: 20 }}>
-      <Grid item xs={12} md={6} lg={4}>
-        <Card>
-          <CardContent>
-            <Typography variant="h5" component="h2">
-              Accelerometer
-            </Typography>
-            <Typography component="p" id="accelerometer">
-              Waiting for data...
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={6} lg={4}>
-        <Card>
-          <CardContent>
-            <Typography variant="h5" component="h2">
-              Gravity Sensor
-            </Typography>
-            <Typography component="p" id="gravity">
-              Waiting for data...
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={6} lg={4}>
-        <Card>
-          <CardContent>
-            <Typography variant="h5" component="h2">
-              Gyroscope
-            </Typography>
-            <Typography component="p" id="gyroscope">
-              Waiting for data...
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={6} lg={4}>
-        <Card>
-          <CardContent>
-            <Typography variant="h5" component="h2">
-              Orientation
-            </Typography>
-            <Typography component="p" id="orientation">
-              Waiting for data...
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} md={6} lg={4}>
-        <Card>
-          <CardContent>
-            <Typography variant="h5" component="h2">
-              Inclinometer
-            </Typography>
-            <Typography component="p" id="inclinometer">
-              Waiting for data...
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
+      {Object.entries(sensorData).map(([sensorType, { data, max, min }]) => (
+        <Grid item xs={12} md={6} lg={4} key={sensorType}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" component="h2">
+                {sensorType.charAt(0).toUpperCase() + sensorType.slice(1)}
+              </Typography>
+              {Object.entries(data).map(([key, value]) => (
+                <Typography key={key} style={{ color: colors[key] }}>
+                  {`${key.toUpperCase()}: ${value.toFixed(4)} (Max: ${max[
+                    key
+                  ].toFixed(4)}, Min: ${min[key].toFixed(4)})`}
+                </Typography>
+              ))}
+              {chartData[sensorType].length > 0 && (
+                <SensorChart
+                  data={chartData[sensorType]}
+                  sensorType={sensorType}
+                  colors={colors}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
     </Grid>
   );
 };
