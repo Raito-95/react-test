@@ -71,19 +71,25 @@ const useSensors = () => {
     const sensorsCleanup = [];
 
     const handleOrientationEvent = (event) => {
-      const { alpha, beta, gamma } = event; // alpha: yaw, beta: pitch, gamma: roll
-      const compass = 360 - alpha;
-      const inclinometerData = {
-        pitch: beta,
-        roll: gamma,
-        yaw: alpha,
-      };
-      const compassData = { compass };
+      const { alpha, beta, gamma } = event;
+      if (
+        typeof alpha === "number" &&
+        typeof beta === "number" &&
+        typeof gamma === "number"
+      ) {
+        const compass = 360 - alpha;
+        const inclinometerData = {
+          pitch: beta,
+          roll: gamma,
+          yaw: alpha,
+        };
+        const compassData = { compass };
 
-      updateMaxMin("inclinometer", inclinometerData);
-      addToChartData("inclinometer", inclinometerData);
-      updateMaxMin("compass", compassData);
-      addToChartData("compass", compassData);
+        updateMaxMin("inclinometer", inclinometerData);
+        addToChartData("inclinometer", inclinometerData);
+        updateMaxMin("compass", compassData);
+        addToChartData("compass", compassData);
+      }
     };
 
     window.addEventListener("deviceorientation", handleOrientationEvent);
@@ -189,13 +195,15 @@ const SensorPage = () => {
               <Typography variant="h5" component="h2">
                 {sensorType.charAt(0).toUpperCase() + sensorType.slice(1)}
               </Typography>
-              {Object.entries(data).map(([key, value]) => (
-                <Typography key={key} style={{ color: colors[key] }}>
-                  {`${key.toUpperCase()}: ${value.toFixed(4)} (Max: ${max[
-                    key
-                  ].toFixed(4)}, Min: ${min[key].toFixed(4)})`}
-                </Typography>
-              ))}
+              {Object.entries(data)
+                .filter(([key, value]) => value !== null && value !== undefined)
+                .map(([key, value]) => (
+                  <Typography key={key} style={{ color: colors[key] }}>
+                    {`${key.toUpperCase()}: ${value.toFixed(4)} (Max: ${max[
+                      key
+                    ].toFixed(4)}, Min: ${min[key].toFixed(4)})`}
+                  </Typography>
+                ))}
               {chartData[sensorType].length > 0 && (
                 <SensorChart
                   data={chartData[sensorType]}
