@@ -59,10 +59,15 @@ const useSensors = () => {
     setChartData((currentData) => {
       const newDataPoint = { ...newData, timestamp: new Date().getTime() };
       const updatedData = [...currentData[sensorType], newDataPoint];
+      const maxLength = 100;
+      const dataToDisplay =
+        updatedData.length > maxLength
+          ? updatedData.slice(-maxLength)
+          : updatedData;
+
       return {
         ...currentData,
-        [sensorType]:
-          updatedData.length > 100 ? updatedData.slice(-100) : updatedData,
+        [sensorType]: dataToDisplay,
       };
     });
   };
@@ -168,7 +173,7 @@ const SensorChart = ({ data, colors }) => {
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="timestamp" hide={true} />
       <YAxis />
-      <Tooltip />
+      <Tooltip transitionDuration={0} />
       {Object.keys(data[0] || {})
         .filter((key) => key !== "timestamp")
         .map((axis) => (
@@ -177,6 +182,8 @@ const SensorChart = ({ data, colors }) => {
             type="monotone"
             dataKey={axis}
             stroke={colors[axis]}
+            isAnimationActive={false}
+            dot={false}
           />
         ))}
     </LineChart>
