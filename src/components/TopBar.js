@@ -31,23 +31,13 @@ const StyledMenuIcon = styled(MenuIcon)(({ theme }) => ({
   },
 }));
 
-// Helper function to convert hex to RGB
 const hexToRgb = (hex) => {
-  let r = 0,
-    g = 0,
-    b = 0;
-  // 3 digits
   if (hex.length === 4) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
+    hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
   }
-  // 6 digits
-  else if (hex.length === 7) {
-    r = parseInt(hex[1] + hex[2], 16);
-    g = parseInt(hex[3] + hex[4], 16);
-    b = parseInt(hex[5] + hex[6], 16);
-  }
+  const r = parseInt(hex.substring(1, 3), 16);
+  const g = parseInt(hex.substring(3, 5), 16);
+  const b = parseInt(hex.substring(5, 7), 16);
   return `${r}, ${g}, ${b}`;
 };
 
@@ -63,15 +53,10 @@ const TopBar = ({ setThemeMode }) => {
     const handleScroll = () => {
       const threshold = 100;
       const maxOpacityScroll = 300;
-      let newOpacity = 1;
-
-      if (window.scrollY > threshold) {
-        newOpacity = Math.max(
-          0.8,
-          1 - (window.scrollY - threshold) / maxOpacityScroll
-        );
-      }
-
+      const newOpacity =
+        window.scrollY > threshold
+          ? Math.max(0.8, 1 - (window.scrollY - threshold) / maxOpacityScroll)
+          : 1;
       setOpacity(newOpacity);
     };
 
@@ -89,15 +74,14 @@ const TopBar = ({ setThemeMode }) => {
     localStorage.setItem("themeMode", newMode);
   };
 
+  const backgroundColor = `rgba(${hexToRgb(
+    theme.palette.mode === "dark"
+      ? theme.palette.background.paper
+      : theme.palette.primary.main
+  )}, ${opacity})`;
+
   return (
-    <AppBar
-      position="fixed"
-      style={{
-        backgroundColor: `rgba(${hexToRgb(
-          theme.palette.background.paper
-        )}, ${opacity})`,
-      }}
-    >
+    <AppBar position="fixed" style={{ backgroundColor }}>
       <Toolbar>
         <IconButton
           edge="end"
