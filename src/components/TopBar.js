@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 import {
   AppBar,
@@ -30,11 +31,53 @@ const StyledMenuIcon = styled(MenuIcon)(({ theme }) => ({
   },
 }));
 
+// Helper function to convert hex to RGB
+const hexToRgb = (hex) => {
+  let r = 0,
+    g = 0,
+    b = 0;
+  // 3 digits
+  if (hex.length === 4) {
+    r = parseInt(hex[1] + hex[1], 16);
+    g = parseInt(hex[2] + hex[2], 16);
+    b = parseInt(hex[3] + hex[3], 16);
+  }
+  // 6 digits
+  else if (hex.length === 7) {
+    r = parseInt(hex[1] + hex[2], 16);
+    g = parseInt(hex[3] + hex[4], 16);
+    b = parseInt(hex[5] + hex[6], 16);
+  }
+  return `${r}, ${g}, ${b}`;
+};
+
 const TopBar = ({ setThemeMode }) => {
+  const theme = useTheme();
   const [currentThemeMode, setCurrentThemeMode] = useState(
     localStorage.getItem("themeMode") || "light"
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [opacity, setOpacity] = useState(1);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const threshold = 100;
+      const maxOpacityScroll = 300;
+      let newOpacity = 1;
+
+      if (window.scrollY > threshold) {
+        newOpacity = Math.max(
+          0.8,
+          1 - (window.scrollY - threshold) / maxOpacityScroll
+        );
+      }
+
+      setOpacity(newOpacity);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     setThemeMode(currentThemeMode);
@@ -47,7 +90,14 @@ const TopBar = ({ setThemeMode }) => {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position="fixed"
+      style={{
+        backgroundColor: `rgba(${hexToRgb(
+          theme.palette.background.paper
+        )}, ${opacity})`,
+      }}
+    >
       <Toolbar>
         <IconButton
           edge="end"

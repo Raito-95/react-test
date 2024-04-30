@@ -95,14 +95,16 @@ function App() {
           <>
             <TopBar setThemeMode={setThemeMode} />
             <Suspense fallback={<Loading />}>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/anime" element={<AnimePage />} />
-                <Route path="/article" element={<ArticlePage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/sensor" element={<SensorPage />} />
-              </Routes>
+              <Box sx={{ paddingTop: "64px" }}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/anime" element={<AnimePage />} />
+                  <Route path="/article" element={<ArticlePage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/sensor" element={<SensorPage />} />
+                </Routes>
+              </Box>
             </Suspense>
           </>
         ) : (
