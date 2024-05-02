@@ -18,13 +18,11 @@ import {
   CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { useTheme } from "@mui/material/styles";
 import debounce from "lodash.debounce";
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 
 function ArticlePage() {
-  const theme = useTheme();
   const [articles, setArticles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredArticles, setFilteredArticles] = useState([]);
