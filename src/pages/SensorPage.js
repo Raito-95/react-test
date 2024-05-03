@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, Typography, Grid } from "@mui/material";
 import {
+  ResponsiveContainer,
   LineChart,
   Line,
   XAxis,
@@ -169,24 +170,26 @@ const useSensors = () => {
 
 const SensorChart = ({ data, colors }) => {
   return (
-    <LineChart width={400} height={200} data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="timestamp" hide={true} />
-      <YAxis />
-      <Tooltip transitionDuration={0} />
-      {Object.keys(data[0] || {})
-        .filter((key) => key !== "timestamp")
-        .map((axis) => (
-          <Line
-            key={axis}
-            type="monotone"
-            dataKey={axis}
-            stroke={colors[axis]}
-            isAnimationActive={false}
-            dot={false}
-          />
-        ))}
-    </LineChart>
+    <ResponsiveContainer width="100%" height={200}>
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="timestamp" hide={true} />
+        <YAxis />
+        <Tooltip transitionDuration={0} />
+        {Object.keys(data[0] || {})
+          .filter((key) => key !== "timestamp")
+          .map((axis) => (
+            <Line
+              key={axis}
+              type="monotone"
+              dataKey={axis}
+              stroke={colors[axis]}
+              isAnimationActive={false}
+              dot={false}
+            />
+          ))}
+      </LineChart>
+    </ResponsiveContainer>
   );
 };
 

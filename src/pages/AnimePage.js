@@ -36,6 +36,7 @@ function AnimePage() {
     minYear: 0,
     maxYear: new Date().getFullYear(),
   });
+  const [imageStyles, setImageStyles] = useState({});
 
   const fetchAnimeList = useCallback(async () => {
     try {
@@ -53,6 +54,27 @@ function AnimePage() {
       const earliestYear =
         sortedList[sortedList.length - 1]?.year || latestYear;
 
+      const styles = {};
+      await Promise.all(
+        sortedList.map(
+          (anime) =>
+            new Promise((resolve) => {
+              const img = new Image();
+              img.onload = () => {
+                const isPortrait = img.height > img.width;
+                const aspectRatio = img.width / img.height;
+                const height = isPortrait ? "300px" : `${300 / aspectRatio}px`; // Calculate height based on aspect ratio
+                styles[anime.url] = {
+                  height: height,
+                  width: "100%",
+                };
+                resolve();
+              };
+              img.src = anime.image_url;
+            })
+        )
+      );
+
       setAnimeData({
         list: sortedList,
         year: latestYear,
@@ -62,6 +84,7 @@ function AnimePage() {
       setFilteredAnimes(
         sortedList.filter((anime) => anime.year === latestYear)
       );
+      setImageStyles({ ...styles });
     } catch (error) {
       console.error("Error fetching anime list:", error);
     }
@@ -152,6 +175,8 @@ function AnimePage() {
                 setAnimeData((prev) => ({ ...prev, year: newYear }));
                 handleYearFilter(newYear);
               }}
+              displayEmpty
+              inputProps={{ "aria-label": "Without label" }}
             >
               {yearOptions.map((year) => (
                 <MenuItem key={year} value={year}>
@@ -191,24 +216,24 @@ function AnimePage() {
                     xs={12}
                     sm={6}
                     md={4}
-                    lg={4}
-                    xl={3}
+                    lg={3}
+                    xl={2}
+                    sx={{ minHeight: "300px" }}
                   >
                     <Card
                       component="a"
                       href={anime.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      sx={{ textDecoration: "none" }}
+                      sx={{ textDecoration: "none", height: "100%" }}
                     >
                       <div
                         style={{
-                          height: "200px",
-                          width: "100%",
                           backgroundImage: `url(${anime.image_url})`,
                           backgroundSize: "contain",
                           backgroundPosition: "center",
                           backgroundRepeat: "no-repeat",
+                          ...imageStyles[anime.url],
                         }}
                       ></div>
                       <CardContent>
