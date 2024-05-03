@@ -16,7 +16,16 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
-const seasonOrder = ["Fall", "Summer", "Spring", "Winter"];
+const categoryOrder = [
+  "Fall",
+  "Summer",
+  "Spring",
+  "Winter",
+  "ONA",
+  "OVA",
+  "Movie",
+  "Special",
+];
 
 function AnimePage() {
   const [filteredAnimes, setFilteredAnimes] = useState([]);
@@ -35,7 +44,9 @@ function AnimePage() {
         if (a.year !== b.year) {
           return b.year - a.year;
         }
-        return seasonOrder.indexOf(b.season) - seasonOrder.indexOf(a.season);
+        return (
+          categoryOrder.indexOf(b.category) - categoryOrder.indexOf(a.category)
+        );
       });
 
       const latestYear = sortedList[0]?.year || new Date().getFullYear();
@@ -157,23 +168,23 @@ function AnimePage() {
           No animes found.
         </Typography>
       ) : (
-        seasonOrder.map((season) => {
-          const animesForSeason = filteredAnimes.filter(
-            (anime) => anime.season === season
+        categoryOrder.map((category) => {
+          const animesForCategory = filteredAnimes.filter(
+            (anime) => anime.category === category
           );
-          if (animesForSeason.length === 0) return null;
+          if (animesForCategory.length === 0) return null;
 
           return (
-            <div key={season}>
+            <div key={category}>
               <Typography
                 variant="h4"
                 align="center"
                 sx={{ marginTop: "2em", marginBottom: "1em" }}
               >
-                {season}
+                {category}
               </Typography>
               <Grid container spacing={3}>
-                {animesForSeason.map((anime) => (
+                {animesForCategory.map((anime) => (
                   <Grid
                     key={anime.url}
                     item
