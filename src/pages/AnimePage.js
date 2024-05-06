@@ -21,10 +21,7 @@ const categoryOrder = [
   "Summer",
   "Spring",
   "Winter",
-  "ONA",
-  "OVA",
   "Movie",
-  "Special",
 ];
 
 function AnimePage() {
