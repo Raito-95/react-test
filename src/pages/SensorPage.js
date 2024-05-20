@@ -1,5 +1,5 @@
 /* global Accelerometer, GravitySensor, Gyroscope, AbsoluteOrientationSensor */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, Typography, Grid } from "@mui/material";
 import {
   ResponsiveContainer,
@@ -39,24 +39,27 @@ const useSensors = () => {
     inclinometer: [],
     orientation: [],
   });
+  const [error, setError] = useState(null);
 
-  const updateMaxMin = (sensorType, newData) => {
-    const updated = { ...sensorData[sensorType] };
-    Object.keys(newData).forEach((key) => {
-      updated.max[key] = Math.max(
-        sensorData[sensorType].max[key] || -Infinity,
-        newData[key]
-      );
-      updated.min[key] = Math.min(
-        sensorData[sensorType].min[key] || Infinity,
-        newData[key]
-      );
+  const updateMaxMin = useCallback((sensorType, newData) => {
+    setSensorData((prevData) => {
+      const updated = { ...prevData[sensorType] };
+      Object.keys(newData).forEach((key) => {
+        updated.max[key] = Math.max(
+          prevData[sensorType].max[key] || -Infinity,
+          newData[key]
+        );
+        updated.min[key] = Math.min(
+          prevData[sensorType].min[key] || Infinity,
+          newData[key]
+        );
+      });
+      updated.data = newData;
+      return { ...prevData, [sensorType]: updated };
     });
-    updated.data = newData;
-    setSensorData((prevData) => ({ ...prevData, [sensorType]: updated }));
-  };
+  }, []);
 
-  const addToChartData = (sensorType, newData) => {
+  const addToChartData = useCallback((sensorType, newData) => {
     setChartData((currentData) => {
       const newDataPoint = { ...newData, timestamp: new Date().getTime() };
       const updatedData = [...currentData[sensorType], newDataPoint];
@@ -71,7 +74,7 @@ const useSensors = () => {
         [sensorType]: dataToDisplay,
       };
     });
-  };
+  }, []);
 
   useEffect(() => {
     const sensorsCleanup = [];
@@ -104,68 +107,84 @@ const useSensors = () => {
     );
 
     if ("Accelerometer" in window) {
-      const accelerometer = new Accelerometer({ frequency: 60 });
-      accelerometer.addEventListener("reading", () => {
-        const accelerometerData = {
-          x: accelerometer.x / 9.8,
-          y: accelerometer.y / 9.8,
-          z: accelerometer.z / 9.8,
-        };
-        updateMaxMin("accelerometer", accelerometerData);
-        addToChartData("accelerometer", accelerometerData);
-      });
-      accelerometer.start();
-      sensorsCleanup.push(() => accelerometer.stop());
+      try {
+        const accelerometer = new Accelerometer({ frequency: 60 });
+        accelerometer.addEventListener("reading", () => {
+          const accelerometerData = {
+            x: accelerometer.x / 9.8,
+            y: accelerometer.y / 9.8,
+            z: accelerometer.z / 9.8,
+          };
+          updateMaxMin("accelerometer", accelerometerData);
+          addToChartData("accelerometer", accelerometerData);
+        });
+        accelerometer.start();
+        sensorsCleanup.push(() => accelerometer.stop());
+      } catch (err) {
+        setError("Accelerometer not supported or permission denied");
+      }
     }
 
     if ("GravitySensor" in window) {
-      const gravity = new GravitySensor({ frequency: 60 });
-      gravity.addEventListener("reading", () => {
-        const gravityData = {
-          x: gravity.x / 9.8,
-          y: gravity.y / 9.8,
-          z: gravity.z / 9.8,
-        };
-        updateMaxMin("gravity", gravityData);
-        addToChartData("gravity", gravityData);
-      });
-      gravity.start();
-      sensorsCleanup.push(() => gravity.stop());
+      try {
+        const gravity = new GravitySensor({ frequency: 60 });
+        gravity.addEventListener("reading", () => {
+          const gravityData = {
+            x: gravity.x / 9.8,
+            y: gravity.y / 9.8,
+            z: gravity.z / 9.8,
+          };
+          updateMaxMin("gravity", gravityData);
+          addToChartData("gravity", gravityData);
+        });
+        gravity.start();
+        sensorsCleanup.push(() => gravity.stop());
+      } catch (err) {
+        setError("GravitySensor not supported or permission denied");
+      }
     }
 
     if ("Gyroscope" in window) {
-      const gyroscope = new Gyroscope({ frequency: 60 });
-      gyroscope.addEventListener("reading", () => {
-        const gyroscopeData = {
-          x: gyroscope.x,
-          y: gyroscope.y,
-          z: gyroscope.z,
-        };
-        updateMaxMin("gyroscope", gyroscopeData);
-        addToChartData("gyroscope", gyroscopeData);
-      });
-      gyroscope.start();
-      sensorsCleanup.push(() => gyroscope.stop());
+      try {
+        const gyroscope = new Gyroscope({ frequency: 60 });
+        gyroscope.addEventListener("reading", () => {
+          const gyroscopeData = {
+            x: gyroscope.x,
+            y: gyroscope.y,
+            z: gyroscope.z,
+          };
+          updateMaxMin("gyroscope", gyroscopeData);
+          addToChartData("gyroscope", gyroscopeData);
+        });
+        gyroscope.start();
+        sensorsCleanup.push(() => gyroscope.stop());
+      } catch (err) {
+        setError("Gyroscope not supported or permission denied");
+      }
     }
 
     if ("AbsoluteOrientationSensor" in window) {
-      const orientation = new AbsoluteOrientationSensor({
-        frequency: 60,
-      });
-      orientation.addEventListener("reading", () => {
-        const [x, y, z, w] = orientation.quaternion;
-        const orientationData = { x, y, z, w };
-        updateMaxMin("orientation", orientationData);
-        addToChartData("orientation", orientationData);
-      });
-      orientation.start();
-      sensorsCleanup.push(() => orientation.stop());
+      try {
+        const orientation = new AbsoluteOrientationSensor({
+          frequency: 60,
+        });
+        orientation.addEventListener("reading", () => {
+          const [x, y, z, w] = orientation.quaternion;
+          const orientationData = { x, y, z, w };
+          updateMaxMin("orientation", orientationData);
+          addToChartData("orientation", orientationData);
+        });
+        orientation.start();
+        sensorsCleanup.push(() => orientation.stop());
+      } catch (err) {
+        setError("AbsoluteOrientationSensor not supported or permission denied");
+      }
     }
 
     return () => sensorsCleanup.forEach((cleanup) => cleanup());
-  }, []);
+  }, [updateMaxMin, addToChartData]);
 
-  return { sensorData, chartData };
+  return { sensorData, chartData, error };
 };
 
 const SensorChart = ({ data, colors }) => {
@@ -194,37 +213,49 @@ const SensorChart = ({ data, colors }) => {
 };
 
 const SensorPage = () => {
-  const { sensorData, chartData } = useSensors();
+  const { sensorData, chartData, error } = useSensors();
 
   return (
     <Grid container spacing={2} style={{ padding: 20 }}>
-      {Object.entries(sensorData).map(([sensorType, { data, max, min }]) => (
-        <Grid item xs={12} md={6} lg={4} key={sensorType}>
+      {error ? (
+        <Grid item xs={12}>
           <Card>
             <CardContent>
-              <Typography variant="h5" component="h2">
-                {sensorType.charAt(0).toUpperCase() + sensorType.slice(1)}
+              <Typography variant="h6" color="error">
+                {error}
               </Typography>
-              {Object.entries(data)
-                .filter(([key, value]) => value !== null && value !== undefined)
-                .map(([key, value]) => (
-                  <Typography key={key} style={{ color: colors[key] }}>
-                    {`${key.toUpperCase()}: ${value.toFixed(4)} (Max: ${max[
-                      key
-                    ].toFixed(4)}, Min: ${min[key].toFixed(4)})`}
-                  </Typography>
-                ))}
-              {chartData[sensorType].length > 0 && (
-                <SensorChart
-                  data={chartData[sensorType]}
-                  sensorType={sensorType}
-                  colors={colors}
-                />
-              )}
             </CardContent>
           </Card>
         </Grid>
-      ))}
+      ) : (
+        Object.entries(sensorData).map(([sensorType, { data, max, min }]) => (
+          <Grid item xs={12} md={6} lg={4} key={sensorType}>
+            <Card>
+              <CardContent>
+                <Typography variant="h5" component="h2">
+                  {sensorType.charAt(0).toUpperCase() + sensorType.slice(1)}
+                </Typography>
+                {Object.entries(data)
+                  .filter(([key, value]) => value !== null && value !== undefined)
+                  .map(([key, value]) => (
+                    <Typography key={key} style={{ color: colors[key] }}>
+                      {`${key.toUpperCase()}: ${value.toFixed(4)} (Max: ${max[
+                        key
+                      ].toFixed(4)}, Min: ${min[key].toFixed(4)})`}
+                    </Typography>
+                  ))}
+                {chartData[sensorType].length > 0 && (
+                  <SensorChart
+                    data={chartData[sensorType]}
+                    sensorType={sensorType}
+                    colors={colors}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        ))
+      )}
     </Grid>
   );
 };

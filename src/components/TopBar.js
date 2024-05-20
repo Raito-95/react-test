@@ -99,6 +99,7 @@ const TopBar = ({ setThemeMode }) => {
           href="https://www.linkedin.com/in/raito-chiu-518865100/"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="LinkedIn"
         >
           <LinkedInIcon />
         </IconButton>
@@ -108,11 +109,12 @@ const TopBar = ({ setThemeMode }) => {
           href="https://github.com/Raito-95"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="GitHub"
         >
           <GitHubIcon />
         </IconButton>
 
-        <IconButton color="inherit" onClick={toggleThemeMode}>
+        <IconButton color="inherit" onClick={toggleThemeMode} aria-label="Toggle theme">
           {currentThemeMode === "dark" ? <Brightness7 /> : <Brightness4 />}
         </IconButton>
 

@@ -5,6 +5,7 @@ import {
   Zoom,
   useScrollTrigger,
   Box,
+  Typography,
   createTheme,
   ThemeProvider,
 } from "@mui/material";
@@ -32,6 +33,40 @@ const Loading = () => (
   </Box>
 );
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+        >
+          <Typography variant="h5" color="error">
+            Something went wrong. Please try again later.
+          </Typography>
+        </Box>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function ScrollTop({ children }) {
   const trigger = useScrollTrigger({
     disableHysteresis: true,
@@ -50,6 +85,12 @@ function ScrollTop({ children }) {
         bottom={16}
         right={16}
         zIndex="tooltip"
+        role="button"
+        aria-label="scroll back to top"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') handleClick();
+        }}
       >
         {children}
       </Box>
@@ -94,18 +135,20 @@ function App() {
         {animationCompleted ? (
           <>
             <TopBar setThemeMode={setThemeMode} />
-            <Suspense fallback={<Loading />}>
-              <Box sx={{ paddingTop: "64px" }}>
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="/anime" element={<AnimePage />} />
-                  <Route path="/article" element={<ArticlePage />} />
-                  <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/sensor" element={<SensorPage />} />
-                </Routes>
-              </Box>
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<Loading />}>
+                <Box sx={{ paddingTop: "64px" }}>
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/anime" element={<AnimePage />} />
+                    <Route path="/article" element={<ArticlePage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/sensor" element={<SensorPage />} />
+                  </Routes>
+                </Box>
+              </Suspense>
+            </ErrorBoundary>
           </>
         ) : (
           <EntranceAnimation>Welcome</EntranceAnimation>

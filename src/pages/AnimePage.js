@@ -12,6 +12,7 @@ import {
   Select,
   MenuItem,
   FormControl,
+  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
@@ -34,8 +35,12 @@ function AnimePage() {
     maxYear: new Date().getFullYear(),
   });
   const [imageStyles, setImageStyles] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchAnimeList = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
       const response = await axios.get(`${BASE_API_URL}anime_list/`);
       const sortedList = response.data.sort((a, b) => {
@@ -48,8 +53,7 @@ function AnimePage() {
       });
 
       const latestYear = sortedList[0]?.year || new Date().getFullYear();
-      const earliestYear =
-        sortedList[sortedList.length - 1]?.year || latestYear;
+      const earliestYear = sortedList[sortedList.length - 1]?.year || latestYear;
 
       const styles = {};
       await Promise.all(
@@ -60,7 +64,7 @@ function AnimePage() {
               img.onload = () => {
                 const isPortrait = img.height > img.width;
                 const aspectRatio = img.width / img.height;
-                const height = isPortrait ? "300px" : `${300 / aspectRatio}px`; // Calculate height based on aspect ratio
+                const height = isPortrait ? "300px" : `${300 / aspectRatio}px`;
                 styles[anime.url] = {
                   height: height,
                   width: "100%",
@@ -83,7 +87,10 @@ function AnimePage() {
       );
       setImageStyles({ ...styles });
     } catch (error) {
+      setError("Error fetching anime list.");
       console.error("Error fetching anime list:", error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -185,7 +192,13 @@ function AnimePage() {
         </Grid>
       </Grid>
 
-      {filteredAnimes.length === 0 ? (
+      {loading ? (
+        <CircularProgress sx={{ marginTop: 2 }} />
+      ) : error ? (
+        <Typography variant="body1" color="error" sx={{ marginTop: 2 }}>
+          {error}
+        </Typography>
+      ) : filteredAnimes.length === 0 ? (
         <Typography variant="body1" sx={{ marginTop: 2 }}>
           No animes found.
         </Typography>

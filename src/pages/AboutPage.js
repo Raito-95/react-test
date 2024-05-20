@@ -15,6 +15,7 @@ const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 function AboutPage() {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const imageName = "boss.webp";
   const imageUrl = useMemo(
     () => `${BASE_API_URL}get_image/?image_name=${imageName}`,
@@ -33,6 +34,7 @@ function AboutPage() {
         const blobUrl = URL.createObjectURL(blob);
         setImage(blobUrl);
       } catch (error) {
+        setError("Failed to load image");
         console.error("Fetch error:", error);
       } finally {
         setLoading(false);
@@ -46,6 +48,10 @@ function AboutPage() {
       <Box display="flex" flexDirection="column" alignItems="center">
         {loading ? (
           <CircularProgress sx={{ mb: 2 }} />
+        ) : error ? (
+          <Typography variant="body1" color="error">
+            {error}
+          </Typography>
         ) : (
           <Avatar
             src={image}

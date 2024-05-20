@@ -6,6 +6,7 @@ import {
   TextField,
   Button,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
@@ -113,6 +114,7 @@ const ContactPage = () => {
             fullWidth
             value={formData.name}
             onChange={handleInputChange}
+            required
           />
           <TextField
             name="email"
@@ -123,6 +125,7 @@ const ContactPage = () => {
             onChange={handleInputChange}
             error={!!emailError}
             helperText={emailError}
+            required
           />
           <TextField
             name="message"
@@ -133,18 +136,16 @@ const ContactPage = () => {
             rows={6}
             value={formData.message}
             onChange={handleInputChange}
+            required
           />
           <Button
             type="submit"
             variant="contained"
             color="primary"
             fullWidth
-            disabled={
-              isSubmitting ||
-              !formData.name ||
-              !formData.email ||
-              !formData.message
-            }
+            disabled={isSubmitting || !!emailError}
+            aria-label="Submit"
+            endIcon={isSubmitting ? <CircularProgress size="1rem" /> : null}
           >
             Submit
           </Button>

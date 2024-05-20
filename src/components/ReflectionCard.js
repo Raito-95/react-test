@@ -11,6 +11,7 @@ import {
 
 function ReflectionCard({ reflection }) {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   return (
     <Card
@@ -20,6 +21,7 @@ function ReflectionCard({ reflection }) {
         display: "flex",
         flexDirection: "column",
         margin: 3,
+        borderRadius: "24px",
       }}
     >
       <CardActionArea sx={{ flex: 1 }}>
@@ -27,9 +29,12 @@ function ReflectionCard({ reflection }) {
           sx={{
             height: "200px",
             display: "flex",
-            alignItems: "start",
+            alignItems: "center",
             justifyContent: "center",
             position: "relative",
+            borderTopLeftRadius: "24px",
+            borderTopRightRadius: "24px",
+            overflow: "hidden",
           }}
         >
           <CardMedia
@@ -40,8 +45,9 @@ function ReflectionCard({ reflection }) {
             title={reflection.title}
             sx={{ objectFit: "contain", px: "10px" }}
             onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
           />
-          {!imageLoaded && (
+          {!imageLoaded && !imageError && (
             <CircularProgress
               size={24}
               sx={{
@@ -52,6 +58,20 @@ function ReflectionCard({ reflection }) {
               }}
             />
           )}
+          {imageError && (
+            <Typography
+              variant="body2"
+              color="error"
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              Image failed to load
+            </Typography>
+          )}
         </Box>
         <CardContent
           sx={{
@@ -61,9 +81,11 @@ function ReflectionCard({ reflection }) {
             flexDirection: "column",
             justifyContent: "space-between",
             flexGrow: 1,
+            borderBottomLeftRadius: "24px",
+            borderBottomRightRadius: "24px",
           }}
         >
-          <Typography gutterBottom variant="subtitle2">
+          <Typography gutterBottom variant="h6">
             {reflection.title}
           </Typography>
           <Typography variant="body2" color="textSecondary">

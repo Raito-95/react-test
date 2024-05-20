@@ -29,16 +29,26 @@ function ArticlePage() {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchArticles = useCallback(() => {
     setIsLoading(true);
+    setError(null);
     fetch(`${BASE_API_URL}article_list/`)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
       .then((data) => {
         setArticles(data);
         setFilteredArticles(data);
       })
-      .catch((error) => console.error("Error fetching articles:", error))
+      .catch((error) => {
+        setError("Error fetching articles.");
+        console.error("Error fetching articles:", error);
+      })
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -104,54 +114,53 @@ function ArticlePage() {
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             <CircularProgress />
           </Box>
-        ) : (
+        ) : error ? (
+          <Typography variant="body1" color="error" sx={{ textAlign: "center" }}>
+            {error}
+          </Typography>
+        ) : filteredArticles.length > 0 ? (
           <Grid container spacing={3}>
-            {filteredArticles.length > 0 ? (
-              filteredArticles.map((article, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Card>
-                    <CardActionArea onClick={() => handleOpenDialog(article)}>
-                      <CardMedia
-                        component="img"
-                        image={article.image_url}
-                        alt={article.title}
+            {filteredArticles.map((article, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Card>
+                  <CardActionArea onClick={() => handleOpenDialog(article)}>
+                    <CardMedia
+                      component="img"
+                      image={article.image_url}
+                      alt={article.title}
+                      sx={{
+                        height: { xs: 180, sm: 140, md: 180 },
+                        objectFit: "cover",
+                      }}
+                    />
+                    <CardContent>
+                      <Typography variant="h6" noWrap>
+                        {article.title}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {new Date(article.date).toLocaleDateString()}
+                      </Typography>
+                      <Typography
+                        variant="body2"
                         sx={{
-                          height: { xs: 180, sm: 140, md: 180 },
-                          objectFit: "cover",
+                          display: "-webkit-box",
+                          overflow: "hidden",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
                         }}
-                      />
-                      <CardContent>
-                        <Typography variant="h6" noWrap>
-                          {article.title}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          {new Date(article.date).toLocaleDateString()}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            display: "-webkit-box",
-                            overflow: "hidden",
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: "vertical",
-                          }}
-                        >
-                          {article.summary}
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Grid>
-              ))
-            ) : (
-              <Typography
-                variant="body1"
-                sx={{ padding: 2, textAlign: "center" }}
-              >
-                No articles found.
-              </Typography>
-            )}
+                      >
+                        {article.summary}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
+        ) : (
+          <Typography variant="body1" sx={{ padding: 2, textAlign: "center" }}>
+            No articles found.
+          </Typography>
         )}
 
         <Dialog

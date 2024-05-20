@@ -41,27 +41,20 @@ const HomePage = () => {
     setDisplayCount((prevCount) => prevCount + 9);
   };
 
-  if (error) {
-    return (
-      <Typography variant="h6" color="error">
-        {error}
-      </Typography>
-    );
-  }
-
   return (
     <>
       <Box py={4} textAlign="center">
-        <Typography variant="h2" gutterBottom>
+        <Typography variant="h3" gutterBottom>
           Whispers of the Heart
         </Typography>
-        <Typography variant="h5" paragraph>
+        <Typography variant="h6" paragraph>
           A symphony of thoughts, dreams, and musings.
         </Typography>
         <Button
           variant="outlined"
           color="primary"
           onClick={() => navigate("/about")}
+          aria-label="Dive Into My Journey"
         >
           Dive Into My Journey
         </Button>
@@ -71,10 +64,14 @@ const HomePage = () => {
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress />
         </Box>
+      ) : error ? (
+        <Typography variant="h6" color="error" align="center">
+          {error}
+        </Typography>
       ) : (
         <Grid container spacing={3}>
           {reflections.slice(0, displayCount).map((reflection) => (
-            <Grid item xs={12} sm={6} md={4} lg={4} xl={3} key={reflection.id}>
+            <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={reflection.id}>
               <ReflectionCard reflection={reflection} />
             </Grid>
           ))}
@@ -83,23 +80,28 @@ const HomePage = () => {
 
       {!isLoading && displayCount < reflections.length && (
         <Box textAlign="center" mt={4}>
-          <Button variant="contained" onClick={handleLoadMore}>
+          <Button
+            variant="contained"
+            onClick={handleLoadMore}
+            aria-label="Load More Reflections"
+          >
             Load More
           </Button>
         </Box>
       )}
 
       <Box py={5} textAlign="center">
-        <Typography variant="h3" gutterBottom>
+        <Typography variant="h4" gutterBottom>
           Share in the Echoes
         </Typography>
-        <Typography variant="h6" paragraph>
+        <Typography variant="body1" paragraph>
           Have stories of your own? Let's weave our tales together.
         </Typography>
         <Button
           variant="contained"
           color="primary"
           onClick={() => navigate("/contact")}
+          aria-label="Connect with Me"
         >
           Connect with Me
         </Button>
