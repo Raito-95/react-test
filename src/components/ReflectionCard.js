@@ -17,33 +17,42 @@ function ReflectionCard({ reflection }) {
     <Card
       elevation={3}
       sx={{
-        height: "420px",
         display: "flex",
         flexDirection: "column",
-        margin: 3,
-        borderRadius: "24px",
+        margin: 2,
+        borderRadius: "16px",
+        height: "100%",
       }}
     >
       <CardActionArea sx={{ flex: 1 }}>
         <Box
           sx={{
-            height: "200px",
+            height: {
+              xs: "200px",
+              sm: "250px",
+              md: "250px",
+              lg: "300px",
+              xl: "300px",
+            },
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             position: "relative",
-            borderTopLeftRadius: "24px",
-            borderTopRightRadius: "24px",
+            borderTopLeftRadius: "16px",
+            borderTopRightRadius: "16px",
             overflow: "hidden",
+            padding: 2,
           }}
         >
           <CardMedia
             component="img"
             alt={reflection.title}
-            height="200"
             image={reflection.image_url}
             title={reflection.title}
-            sx={{ objectFit: "contain", px: "10px" }}
+            sx={{
+              height: "110%",
+              objectFit: "contain",
+            }}
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
           />
@@ -75,14 +84,10 @@ function ReflectionCard({ reflection }) {
         </Box>
         <CardContent
           sx={{
-            maxHeight: "200px",
-            overflow: "auto",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
             flexGrow: 1,
-            borderBottomLeftRadius: "24px",
-            borderBottomRightRadius: "24px",
           }}
         >
           <Typography gutterBottom variant="h6">

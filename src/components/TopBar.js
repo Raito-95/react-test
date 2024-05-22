@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useTheme } from "@mui/material/styles";
+import { useTheme, styled } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 import {
   AppBar,
@@ -10,12 +10,17 @@ import {
   List,
   ListItemButton,
   ListItemText,
-  styled,
 } from "@mui/material";
 import {
   Brightness4,
   Brightness7,
   Menu as MenuIcon,
+  Home as HomeIcon,
+  Info as InfoIcon,
+  Movie as MovieIcon,
+  Article as ArticleIcon,
+  ContactMail as ContactMailIcon,
+  Sensors as SensorsIcon,
 } from "@mui/icons-material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import GitHubIcon from "@mui/icons-material/GitHub";
@@ -23,11 +28,30 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 const StyledMenuIcon = styled(MenuIcon)(({ theme }) => ({
   transition: "transform 0.3s ease, color 0.3s ease",
   "&:hover": {
-    color: theme.palette.primary.dark,
+    color: theme.palette.secondary.main,
     transform: "scale(1.1)",
   },
   "&:active": {
     transform: "rotate(15deg)",
+  },
+}));
+
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
+  transition: "transform 0.3s ease, color 0.3s ease",
+  "&:hover": {
+    color: theme.palette.secondary.main,
+    transform: "scale(1.1)",
+  },
+}));
+
+const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
+  transition: "background-color 0.3s ease, transform 0.3s ease",
+  "&:hover": {
+    backgroundColor: theme.palette.action.hover,
+    transform: "scale(1.05)",
+  },
+  "&:active": {
+    transform: "scale(0.95)",
   },
 }));
 
@@ -80,20 +104,31 @@ const TopBar = ({ setThemeMode }) => {
       : theme.palette.primary.main
   )}, ${opacity})`;
 
+  const menuItems = [
+    { text: "Home", icon: <HomeIcon />, link: "/" },
+    { text: "About", icon: <InfoIcon />, link: "/about" },
+    { text: "Anime", icon: <MovieIcon />, link: "/anime" },
+    { text: "Article", icon: <ArticleIcon />, link: "/article" },
+    { text: "Contact", icon: <ContactMailIcon />, link: "/contact" },
+    { text: "Sensor", icon: <SensorsIcon />, link: "/sensor" },
+  ];
+
   return (
-    <AppBar position="fixed" style={{ backgroundColor }}>
+    <AppBar
+      position="fixed"
+      sx={{ background: backgroundColor, transition: "background 0.3s ease" }}
+    >
       <Toolbar>
-        <IconButton
+        <StyledIconButton
           edge="end"
           color="inherit"
           aria-label="menu"
           onClick={() => setDrawerOpen(true)}
         >
           <StyledMenuIcon />
-        </IconButton>
+        </StyledIconButton>
         <Box flexGrow={1} />
-
-        <IconButton
+        <StyledIconButton
           color="inherit"
           component="a"
           href="https://www.linkedin.com/in/raito-chiu-518865100/"
@@ -102,8 +137,8 @@ const TopBar = ({ setThemeMode }) => {
           aria-label="LinkedIn"
         >
           <LinkedInIcon />
-        </IconButton>
-        <IconButton
+        </StyledIconButton>
+        <StyledIconButton
           color="inherit"
           component="a"
           href="https://github.com/Raito-95"
@@ -112,34 +147,32 @@ const TopBar = ({ setThemeMode }) => {
           aria-label="GitHub"
         >
           <GitHubIcon />
-        </IconButton>
-
-        <IconButton color="inherit" onClick={toggleThemeMode} aria-label="Toggle theme">
+        </StyledIconButton>
+        <StyledIconButton
+          color="inherit"
+          onClick={toggleThemeMode}
+          aria-label="Toggle theme"
+        >
           {currentThemeMode === "dark" ? <Brightness7 /> : <Brightness4 />}
-        </IconButton>
-
+        </StyledIconButton>
         <Drawer
           anchor="left"
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
         >
           <List>
-            <ListItemButton
-              component={Link}
-              to="/"
-              onClick={() => setDrawerOpen(false)}
-            >
-              <ListItemText primary="Home" />
-            </ListItemButton>
-            {["About", "Anime", "Article", "Contact", "Sensor"].map((text) => (
-              <ListItemButton
-                key={text}
+            {menuItems.map((item) => (
+              <StyledListItemButton
+                key={item.text}
                 component={Link}
-                to={`/${text.toLowerCase()}`}
+                to={item.link}
                 onClick={() => setDrawerOpen(false)}
               >
-                <ListItemText primary={text} />
-              </ListItemButton>
+                <Box display="flex" alignItems="center">
+                  {item.icon}
+                  <ListItemText primary={item.text} sx={{ marginLeft: 2 }} />
+                </Box>
+              </StyledListItemButton>
             ))}
           </List>
         </Drawer>

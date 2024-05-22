@@ -8,8 +8,8 @@ import {
   Typography,
   createTheme,
   ThemeProvider,
+  CssBaseline,
 } from "@mui/material";
-import CssBaseline from "@mui/material/CssBaseline";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import TopBar from "./components/TopBar";
@@ -67,7 +67,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-function ScrollTop({ children }) {
+const ScrollTop = ({ children }) => {
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 100,
@@ -89,16 +89,16 @@ function ScrollTop({ children }) {
         aria-label="scroll back to top"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') handleClick();
+          if (e.key === "Enter" || e.key === " ") handleClick();
         }}
       >
         {children}
       </Box>
     </Zoom>
   );
-}
+};
 
-function App() {
+const App = () => {
   const storedThemeMode = localStorage.getItem("themeMode") || "light";
   const [themeMode, setThemeMode] = useState(storedThemeMode);
   const [animationCompleted, setAnimationCompleted] = useState(
@@ -161,6 +161,6 @@ function App() {
       </Router>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

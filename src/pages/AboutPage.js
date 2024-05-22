@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
+  Container,
   Box,
   Typography,
   Divider,
@@ -12,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 
-function AboutPage() {
+const AboutPage = () => {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,7 +25,7 @@ function AboutPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchImage() {
+    const fetchImage = async () => {
       try {
         const response = await fetch(imageUrl);
         if (!response.ok) {
@@ -39,65 +40,76 @@ function AboutPage() {
       } finally {
         setLoading(false);
       }
-    }
+    };
     fetchImage();
   }, [imageUrl]);
 
   return (
-    <Box p={4}>
-      <Box display="flex" flexDirection="column" alignItems="center">
-        {loading ? (
-          <CircularProgress sx={{ mb: 2 }} />
-        ) : error ? (
-          <Typography variant="body1" color="error">
-            {error}
-          </Typography>
-        ) : (
-          <Avatar
-            src={image}
-            alt="Profile Image"
-            sx={{ width: 150, height: 150, mb: 2 }}
-          />
-        )}
-        <Typography variant="h3" gutterBottom>
-          Raito's Musings
-        </Typography>
-        <Typography variant="h6" color="textSecondary" paragraph>
-          A Chronicle of Life's Beautiful Mysteries
-        </Typography>
-      </Box>
-
-      <Divider variant="middle" sx={{ my: 4 }} />
-
-      <Typography variant="h4" gutterBottom>
-        Embarking on a Journey
-      </Typography>
-      <Typography variant="body1" paragraph>
-        Every twist and turn, every high and low, is a new chapter in the story
-        of life. Dive deep into my introspections as we navigate through this
-        incredible journey together.
-      </Typography>
-
-      <Box mt={5} textAlign="center">
-        <Stack direction="row" spacing={2} justifyContent="center">
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => navigate("/article")}
-          >
-            Explore Writings
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate("/contact")}
-          >
-            Connect with Me
-          </Button>
-        </Stack>
-      </Box>
-    </Box>
+    <Container>
+      <ProfileSection loading={loading} error={error} image={image} />
+      <Divider variant="middle" />
+      <ContentSection />
+      <ActionButtons navigate={navigate} />
+    </Container>
   );
-}
+};
+
+const ProfileSection = ({ loading, error, image }) => (
+  <Box display="flex" flexDirection="column" alignItems="center" p={4}>
+    {loading ? (
+      <CircularProgress />
+    ) : error ? (
+      <Typography variant="h6" color="error" align="center">
+        {error}
+      </Typography>
+    ) : (
+      <Avatar
+        src={image}
+        alt="Profile Image"
+        sx={{ width: 150, height: 150, mb: 2 }}
+      />
+    )}
+    <Typography variant="h3" gutterBottom>
+      About Me
+    </Typography>
+    <Typography variant="h6" paragraph>
+      A Chronicle of Life's Beautiful Mysteries
+    </Typography>
+  </Box>
+);
+
+const ContentSection = () => (
+  <Box textAlign="center" p={4}>
+    <Typography variant="h4" gutterBottom>
+      Embarking on a Journey
+    </Typography>
+    <Typography variant="body1" paragraph>
+      Every twist and turn, every high and low, is a new chapter in the story of
+      life. Dive deep into my introspections as we navigate through this
+      incredible journey together.
+    </Typography>
+  </Box>
+);
+
+const ActionButtons = ({ navigate }) => (
+  <Box textAlign="center" mx={4} mb={4}>
+    <Stack direction="row" spacing={2} justifyContent="center">
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => navigate("/article")}
+      >
+        Explore Writings
+      </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => navigate("/contact")}
+      >
+        Connect with Me
+      </Button>
+    </Stack>
+  </Box>
+);
 
 export default AboutPage;

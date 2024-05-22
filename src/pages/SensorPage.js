@@ -1,6 +1,13 @@
 /* global Accelerometer, GravitySensor, Gyroscope, AbsoluteOrientationSensor */
 import React, { useEffect, useState, useCallback } from "react";
-import { Card, CardContent, Typography, Grid } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Box,
+  useTheme,
+} from "@mui/material";
 import {
   ResponsiveContainer,
   LineChart,
@@ -11,16 +18,16 @@ import {
   Tooltip,
 } from "recharts";
 
-const colors = {
-  x: "#8884d8",
-  y: "#82ca9d",
-  z: "#ffc658",
-  w: "#f54242",
-  pitch: "#8884d8",
-  roll: "#82ca9d",
-  yaw: "#ffc658",
-  compass: "#8884d8",
-};
+const getColors = (mode) => ({
+  x: mode === "dark" ? "#8884d8" : "#0000ff",
+  y: mode === "dark" ? "#82ca9d" : "#008000",
+  z: mode === "dark" ? "#ffc658" : "#ffcc00",
+  w: mode === "dark" ? "#f54242" : "#ff0000",
+  pitch: mode === "dark" ? "#8884d8" : "#0000ff",
+  roll: mode === "dark" ? "#82ca9d" : "#008000",
+  yaw: mode === "dark" ? "#ffc658" : "#ffcc00",
+  compass: mode === "dark" ? "#8884d8" : "#0000ff",
+});
 
 const useSensors = () => {
   const [sensorData, setSensorData] = useState({
@@ -68,11 +75,7 @@ const useSensors = () => {
         updatedData.length > maxLength
           ? updatedData.slice(-maxLength)
           : updatedData;
-
-      return {
-        ...currentData,
-        [sensorType]: dataToDisplay,
-      };
+      return { ...currentData, [sensorType]: dataToDisplay };
     });
   }, []);
 
@@ -87,11 +90,7 @@ const useSensors = () => {
         typeof gamma === "number"
       ) {
         const compass = 360 - alpha;
-        const inclinometerData = {
-          pitch: beta,
-          roll: gamma,
-          yaw: alpha,
-        };
+        const inclinometerData = { pitch: beta, roll: gamma, yaw: alpha };
         const compassData = { compass };
 
         updateMaxMin("inclinometer", inclinometerData);
@@ -165,9 +164,7 @@ const useSensors = () => {
 
     if ("AbsoluteOrientationSensor" in window) {
       try {
-        const orientation = new AbsoluteOrientationSensor({
-          frequency: 60,
-        });
+        const orientation = new AbsoluteOrientationSensor({ frequency: 60 });
         orientation.addEventListener("reading", () => {
           const [x, y, z, w] = orientation.quaternion;
           const orientationData = { x, y, z, w };
@@ -177,7 +174,9 @@ const useSensors = () => {
         orientation.start();
         sensorsCleanup.push(() => orientation.stop());
       } catch (err) {
-        setError("AbsoluteOrientationSensor not supported or permission denied");
+        setError(
+          "AbsoluteOrientationSensor not supported or permission denied"
+        );
       }
     }
 
@@ -187,9 +186,9 @@ const useSensors = () => {
   return { sensorData, chartData, error };
 };
 
-const SensorChart = ({ data, colors }) => {
-  return (
-    <ResponsiveContainer width="100%" height={200}>
+const SensorChart = ({ data, colors }) => (
+  <Box sx={{ height: 300 }}>
+    <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="timestamp" hide={true} />
@@ -205,10 +204,53 @@ const SensorChart = ({ data, colors }) => {
               stroke={colors[axis]}
               isAnimationActive={false}
               dot={false}
+              strokeWidth={3}
             />
           ))}
       </LineChart>
     </ResponsiveContainer>
+  </Box>
+);
+
+const HeaderSection = ({ error }) => (
+  <Grid item xs={12}>
+    <Card sx={{ height: 500 }}>
+      <CardContent>
+        <Typography variant="h6" color="error">
+          {error}
+        </Typography>
+      </CardContent>
+    </Card>
+  </Grid>
+);
+
+const SensorSection = ({ sensorData, chartData }) => {
+  const theme = useTheme();
+  const colors = getColors(theme.palette.mode);
+  return (
+    <>
+      {Object.entries(sensorData).map(([sensorType, { data, max, min }]) => (
+        <Grid item xs={12} md={6} lg={4} key={sensorType}>
+          <Card sx={{ height: 500 }}>
+            <Box sx={{ height: 200, overflow: "auto", padding: 2 }}>
+              <Typography variant="h5" component="h2">
+                {sensorType.charAt(0).toUpperCase() + sensorType.slice(1)}
+              </Typography>
+              {Object.entries(data)
+                .filter(([key, value]) => value !== null && value !== undefined)
+                .map(([key, value]) => (
+                  <Typography key={key} style={{ color: colors[key] }}>
+                    {`${key.toUpperCase()}: ${value.toFixed(4)} (Max: ${max[
+                      key
+                    ]?.toFixed(4)}, Min: ${min[key]?.toFixed(4)})`}
+                  </Typography>
+                ))}
+            </Box>
+            <SensorChart data={chartData[sensorType]} colors={colors} />
+          </Card>
+        </Grid>
+      ))}
+    </>
   );
 };
 
@@ -218,43 +260,9 @@ const SensorPage = () => {
   return (
     <Grid container spacing={2} style={{ padding: 20 }}>
       {error ? (
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="error">
-                {error}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+        <HeaderSection error={error} />
       ) : (
-        Object.entries(sensorData).map(([sensorType, { data, max, min }]) => (
-          <Grid item xs={12} md={6} lg={4} key={sensorType}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" component="h2">
-                  {sensorType.charAt(0).toUpperCase() + sensorType.slice(1)}
-                </Typography>
-                {Object.entries(data)
-                  .filter(([key, value]) => value !== null && value !== undefined)
-                  .map(([key, value]) => (
-                    <Typography key={key} style={{ color: colors[key] }}>
-                      {`${key.toUpperCase()}: ${value.toFixed(4)} (Max: ${max[
-                        key
-                      ].toFixed(4)}, Min: ${min[key].toFixed(4)})`}
-                    </Typography>
-                  ))}
-                {chartData[sensorType].length > 0 && (
-                  <SensorChart
-                    data={chartData[sensorType]}
-                    sensorType={sensorType}
-                    colors={colors}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-        ))
+        <SensorSection sensorData={sensorData} chartData={chartData} />
       )}
     </Grid>
   );
