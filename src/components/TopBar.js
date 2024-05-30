@@ -24,6 +24,7 @@ import {
 } from "@mui/icons-material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import { SiLeetcode } from "react-icons/si";
 
 const StyledMenuIcon = styled(MenuIcon)(({ theme }) => ({
   transition: "transform 0.3s ease, color 0.3s ease",
@@ -147,6 +148,16 @@ const TopBar = ({ setThemeMode }) => {
           aria-label="GitHub"
         >
           <GitHubIcon />
+        </StyledIconButton>
+        <StyledIconButton
+          color="inherit"
+          component="a"
+          href="https://leetcode.com/u/Raito-95/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LeetCode"
+        >
+          <SiLeetcode />
         </StyledIconButton>
         <StyledIconButton
           color="inherit"
