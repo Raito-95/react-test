@@ -56,38 +56,28 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   },
 }));
 
-const hexToRgb = (hex) => {
-  if (hex.length === 4) {
-    hex = `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`;
-  }
-  const r = parseInt(hex.substring(1, 3), 16);
-  const g = parseInt(hex.substring(3, 5), 16);
-  const b = parseInt(hex.substring(5, 7), 16);
-  return `${r}, ${g}, ${b}`;
-};
-
 const TopBar = ({ setThemeMode }) => {
-  const theme = useTheme();
   const [currentThemeMode, setCurrentThemeMode] = useState(
     localStorage.getItem("themeMode") || "light"
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [opacity, setOpacity] = useState(1);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [hide, setHide] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const threshold = 100;
-      const maxOpacityScroll = 300;
-      const newOpacity =
-        window.scrollY > threshold
-          ? Math.max(0.8, 1 - (window.scrollY - threshold) / maxOpacityScroll)
-          : 1;
-      setOpacity(newOpacity);
+      const currentScrollPosition = window.scrollY;
+      if (currentScrollPosition > scrollPosition) {
+        setHide(true);
+      } else {
+        setHide(false);
+      }
+      setScrollPosition(currentScrollPosition);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [scrollPosition]);
 
   useEffect(() => {
     setThemeMode(currentThemeMode);
@@ -98,12 +88,6 @@ const TopBar = ({ setThemeMode }) => {
     setCurrentThemeMode(newMode);
     localStorage.setItem("themeMode", newMode);
   };
-
-  const backgroundColor = `rgba(${hexToRgb(
-    theme.palette.mode === "dark"
-      ? theme.palette.background.paper
-      : theme.palette.primary.main
-  )}, ${opacity})`;
 
   const menuItems = [
     { text: "Home", icon: <HomeIcon />, link: "/" },
@@ -117,7 +101,10 @@ const TopBar = ({ setThemeMode }) => {
   return (
     <AppBar
       position="fixed"
-      sx={{ background: backgroundColor, transition: "background 0.3s ease" }}
+      sx={{
+        transition: "transform 0.3s ease",
+        transform: hide ? "translateY(-100%)" : "translateY(0)",
+      }}
     >
       <Toolbar>
         <StyledIconButton

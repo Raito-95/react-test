@@ -187,7 +187,7 @@ const useSensors = () => {
 };
 
 const SensorChart = ({ data, colors }) => (
-  <Box sx={{ height: 300 }}>
+  <Box sx={{ height: 250 }}>
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
@@ -214,7 +214,7 @@ const SensorChart = ({ data, colors }) => (
 
 const HeaderSection = ({ error }) => (
   <Grid item xs={12}>
-    <Card sx={{ height: 500 }}>
+    <Card sx={{ height: 450 }}>
       <CardContent>
         <Typography variant="h6" color="error">
           {error}
