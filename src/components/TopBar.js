@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useTheme, styled } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 import {
   AppBar,

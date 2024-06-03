@@ -9,9 +9,13 @@ import {
   CircularProgress,
 } from "@mui/material";
 
+const BASE_IMAGE_URL =
+  process.env.REACT_APP_API_BASE_URL + "get_image/?image_name=";
+
 function ReflectionCard({ reflection }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const imageUrl = `${BASE_IMAGE_URL}reflection_${reflection.id}.webp`;
 
   return (
     <Card
@@ -47,7 +51,7 @@ function ReflectionCard({ reflection }) {
           <CardMedia
             component="img"
             alt={reflection.title}
-            image={reflection.image_url}
+            image={imageUrl}
             title={reflection.title}
             sx={{
               height: "110%",

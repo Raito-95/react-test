@@ -21,6 +21,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import debounce from "lodash.debounce";
 
 const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
+const BASE_IMAGE_URL = `${BASE_API_URL}get_image/?image_name=`;
 
 const ArticlePage = () => {
   const [articles, setArticles] = useState([]);
@@ -40,8 +41,9 @@ const ArticlePage = () => {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      setArticles(data);
-      setFilteredArticles(data);
+      const sortedData = data.sort((a, b) => b.id - a.id);
+      setArticles(sortedData);
+      setFilteredArticles(sortedData);
     } catch (error) {
       setError("Error fetching articles.");
       console.error("Error fetching articles:", error);
@@ -158,7 +160,7 @@ const ContentSection = ({
               <CardActionArea onClick={() => handleOpenDialog(article)}>
                 <CardMedia
                   component="img"
-                  image={article.image_url}
+                  image={`${BASE_IMAGE_URL}article_${article.id}.webp`}
                   alt={article.title}
                   sx={{
                     height: {
