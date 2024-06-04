@@ -237,7 +237,7 @@ const SensorSection = ({ sensorData, chartData }) => {
                 {sensorType.charAt(0).toUpperCase() + sensorType.slice(1)}
               </Typography>
               {Object.entries(data)
-                .filter(([key, value]) => value !== null && value !== undefined)
+                .filter(([_, value]) => value !== null && value !== undefined)
                 .map(([key, value]) => (
                   <Typography key={key} style={{ color: colors[key] }}>
                     {`${key.toUpperCase()}: ${value.toFixed(4)} (Max: ${max[
@@ -258,7 +258,7 @@ const SensorPage = () => {
   const { sensorData, chartData, error } = useSensors();
 
   return (
-    <Grid container spacing={2} style={{ padding: 20 }}>
+    <Grid container spacing={2} style={{ padding: 2 }}>
       {error ? (
         <HeaderSection error={error} />
       ) : (

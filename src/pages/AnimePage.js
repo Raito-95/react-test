@@ -178,7 +178,7 @@ const SearchSection = ({
   handleYearFilter,
   yearOptions,
 }) => (
-  <Grid container spacing={4} alignItems="center" px={4}>
+  <Grid container alignItems="center" px={4}>
     <Grid item xs={12} sm={6}>
       <TextField
         fullWidth
@@ -248,7 +248,7 @@ const ContentSection = ({ loading, error, filteredAnimes, imageStyles }) => (
             >
               {category}
             </Typography>
-            <Grid container spacing={4}>
+            <Grid>
               {animesForCategory.map((anime) => (
                 <Grid
                   key={anime.url}
