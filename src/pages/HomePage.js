@@ -9,8 +9,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ReflectionCard from "../components/ReflectionCard";
-
-const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
+import { fetchReflectionList } from "../services/api";
 
 const HomePage = () => {
   const [reflections, setReflections] = useState([]);
@@ -20,14 +19,10 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchReflections = async () => {
+    const loadReflections = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${BASE_API_URL}reflection_list/`);
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
+        const data = await fetchReflectionList();
         if (Array.isArray(data)) {
           const sortedData = data.sort((a, b) => b.id - a.id);
           setReflections(sortedData);
@@ -41,7 +36,7 @@ const HomePage = () => {
       }
     };
 
-    fetchReflections();
+    loadReflections();
   }, []);
 
   const handleLoadMore = () => {
@@ -72,11 +67,11 @@ const HomePage = () => {
 const WelcomeSection = ({ navigate }) => (
   <Box textAlign="center" p={4}>
     <Typography variant="h3" gutterBottom>
-      Hello, I'm Raito
+      Hey there, I'm Raito
     </Typography>
     <Typography variant="h6" paragraph>
-      Welcome to my personal space where I share my thoughts, projects, and ways
-      to connect with me.
+      Welcome to my corner of the web where I share my thoughts, projects, and
+      ways to connect with me.
     </Typography>
     <Button
       variant="outlined"
@@ -129,7 +124,7 @@ const ContactSection = ({ navigate }) => (
       Get in Touch
     </Typography>
     <Typography variant="body1" paragraph>
-      Have any questions or feedback? Feel free to reach out to me.
+      Got any questions or feedback? I'd love to hear from you.
     </Typography>
     <Button
       variant="outlined"

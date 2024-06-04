@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Box,
@@ -10,39 +10,31 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
-const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
+import { fetchImage } from "../services/api";
 
 const AboutPage = () => {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const imageName = "boss.webp";
-  const imageUrl = useMemo(
-    () => `${BASE_API_URL}get_image/?image_name=${imageName}`,
-    [imageName]
-  );
+  const imageId = "boss";
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchImage = async () => {
+    const loadImage = async () => {
       try {
-        const response = await fetch(imageUrl);
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const blob = await response.blob();
+        const blob = await fetchImage(imageId);
         const blobUrl = URL.createObjectURL(blob);
         setImage(blobUrl);
       } catch (error) {
-        setError("Failed to load image");
+        setError("Oops! Couldn't load the image.");
         console.error("Fetch error:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchImage();
-  }, [imageUrl]);
+    loadImage();
+  }, [imageId]);
 
   return (
     <Container>
@@ -73,7 +65,7 @@ const ProfileSection = ({ loading, error, image }) => (
       About Me
     </Typography>
     <Typography variant="h6" paragraph>
-      A Chronicle of Life's Beautiful Mysteries
+      The Beautiful Mysteries of Life
     </Typography>
   </Box>
 );
@@ -81,12 +73,11 @@ const ProfileSection = ({ loading, error, image }) => (
 const ContentSection = () => (
   <Box textAlign="center" p={4}>
     <Typography variant="h4" gutterBottom>
-      Embarking on a Journey
+      Starting the Journey
     </Typography>
     <Typography variant="body1" paragraph>
-      Every twist and turn, every high and low, is a new chapter in the story of
-      life. Dive deep into my introspections as we navigate through this
-      incredible journey together.
+      Every twist, every high and low, adds a new chapter to life's story. Let's
+      dive deep together and explore this amazing journey.
     </Typography>
   </Box>
 );
@@ -99,14 +90,14 @@ const ActionButtons = ({ navigate }) => (
         color="primary"
         onClick={() => navigate("/article")}
       >
-        Explore Writings
+        Check Out My Writings
       </Button>
       <Button
         variant="contained"
         color="primary"
         onClick={() => navigate("/contact")}
       >
-        Connect with Me
+        Get in Touch
       </Button>
     </Stack>
   </Box>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import axios from "axios";
 import {
   Container,
   Grid,
@@ -16,8 +15,8 @@ import {
   Box,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { fetchAnimeList } from "../services/api";
 
-const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
 const categoryOrder = ["Fall", "Summer", "Spring", "Winter", "Movie"];
 
 const AnimePage = () => {
@@ -33,12 +32,12 @@ const AnimePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchAnimeList = useCallback(async () => {
+  const fetchAnimeData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`${BASE_API_URL}anime_list/`);
-      const sortedList = response.data.sort((a, b) => {
+      const data = await fetchAnimeList();
+      const sortedList = data.sort((a, b) => {
         if (a.year !== b.year) {
           return b.year - a.year;
         }
@@ -83,7 +82,7 @@ const AnimePage = () => {
       );
       setImageStyles({ ...styles });
     } catch (error) {
-      setError("Error fetching anime list.");
+      setError("Uh-oh! Something went wrong while fetching the anime list.");
       console.error("Error fetching anime list:", error);
     } finally {
       setLoading(false);
@@ -91,8 +90,8 @@ const AnimePage = () => {
   }, []);
 
   useEffect(() => {
-    fetchAnimeList();
-  }, [fetchAnimeList]);
+    fetchAnimeData();
+  }, [fetchAnimeData]);
 
   useEffect(() => {
     const filtered = animeData.list.filter(
@@ -164,8 +163,8 @@ const HeaderSection = () => (
       Anime Chronicles
     </Typography>
     <Typography variant="body1" color="textSecondary" paragraph>
-      A journey through the vibrant world of anime. Discover, reminisce, and
-      explore with me.
+      Dive into the colorful world of anime with me. Discover new shows, relive
+      old favorites, and explore together!
     </Typography>
   </Box>
 );
@@ -231,7 +230,7 @@ const ContentSection = ({ loading, error, filteredAnimes, imageStyles }) => (
       </Typography>
     ) : filteredAnimes.length === 0 ? (
       <Typography variant="body1" sx={{ marginTop: 2 }}>
-        No animes found.
+        No anime found. Try searching something else!
       </Typography>
     ) : (
       categoryOrder.map((category) => {

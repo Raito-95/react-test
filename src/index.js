@@ -1,30 +1,44 @@
-import React from "react";
+import React, { createContext, useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { fetchCSRFToken } from "./services/api";
 
-const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
+export const CSRFContext = createContext();
 
-// Function to fetch CSRF token and ensure it's set in the browser's cookies
-const fetchCSRFToken = async () => {
-  // Assume you have an endpoint to get the CSRF token
-  await fetch(`${BASE_API_URL}get_csrf_token/`, {
-    credentials: "include", // Important to include credentials to receive the cookie
-  });
+const CSRFProvider = ({ children }) => {
+  const [csrfToken, setCSRFToken] = useState("");
+
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const token = await fetchCSRFToken();
+        setCSRFToken(token);
+      } catch (error) {
+        console.error("Error fetching CSRF token:", error);
+      }
+    };
+
+    getToken();
+  }, []);
+
+  return (
+    <CSRFContext.Provider value={csrfToken}>{children}</CSRFContext.Provider>
+  );
 };
 
 // Fetch CSRF token when the app loads
-fetchCSRFToken().then(() => {
-  const root = ReactDOM.createRoot(document.getElementById("root"));
-  root.render(
-    //<React.StrictMode>
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  //<React.StrictMode>
+  <CSRFProvider>
     <App />
-    //</React.StrictMode>
-  );
+  </CSRFProvider>
+  //</React.StrictMode>
+);
 
-  // If you want to start measuring performance in your app, pass a function
-  // to log results (for example: reportWebVitals(console.log))
-  // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-  reportWebVitals();
-});
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();

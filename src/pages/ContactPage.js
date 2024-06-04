@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useContext } from "react";
 import {
   Box,
   Typography,
@@ -9,38 +9,19 @@ import {
   CircularProgress,
   Container,
 } from "@mui/material";
-
-const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
+import { submitContactForm } from "../services/api";
+import { CSRFContext } from "../index";
 
 const ContactPage = () => {
+  const csrfToken = useContext(CSRFContext);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
-  const [csrfToken, setCSRFToken] = useState("");
   const [emailError, setEmailError] = useState("");
   const [notification, setNotification] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const fetchCSRFToken = useCallback(async () => {
-    try {
-      const response = await fetch(`${BASE_API_URL}get_csrf_token/`, {
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch CSRF token");
-      }
-      const data = await response.json();
-      setCSRFToken(data.csrfToken);
-    } catch (error) {
-      console.error("Error fetching CSRF token:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCSRFToken();
-  }, [fetchCSRFToken]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -57,38 +38,22 @@ const ContactPage = () => {
     if (emailError || !csrfToken) {
       setNotification({
         type: "error",
-        message: "Invalid email address or missing CSRF token.",
+        message: "Invalid email or missing token.",
       });
       return;
     }
     setIsSubmitting(true);
     try {
-      const response = await fetch(`${BASE_API_URL}submit_contact_form/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken,
-        },
-        credentials: "include",
-        body: JSON.stringify(formData),
+      await submitContactForm(formData, csrfToken);
+      setNotification({
+        type: "success",
+        message: "Thanks for reaching out! We'll get back to you soon.",
       });
-
-      if (response.ok) {
-        setNotification({
-          type: "success",
-          message: "Thanks for reaching out. We'll get back to you soon.",
-        });
-        setFormData({ name: "", email: "", message: "" });
-      } else {
-        setNotification({
-          type: "error",
-          message: "Sorry, there was an issue sending your message.",
-        });
-      }
+      setFormData({ name: "", email: "", message: "" });
     } catch (error) {
       setNotification({
         type: "error",
-        message: "Error occurred. Please try again later.",
+        message: "Something went wrong. Please try again later.",
       });
       console.error("Error submitting form:", error);
     } finally {
@@ -175,7 +140,7 @@ const ContactForm = ({
         aria-label="Submit"
         endIcon={isSubmitting ? <CircularProgress size="1rem" /> : null}
       >
-        Submit
+        {isSubmitting ? "Submitting..." : "Submit"}
       </Button>
     </Stack>
   </form>

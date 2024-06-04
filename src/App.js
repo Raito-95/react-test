@@ -44,7 +44,9 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error("ErrorBoundary caught an error", error, errorInfo);
+    if (process.env.NODE_ENV === "development") {
+      console.error("ErrorBoundary caught an error", error, errorInfo);
+    }
   }
 
   render() {
@@ -57,7 +59,7 @@ class ErrorBoundary extends React.Component {
           height="100vh"
         >
           <Typography variant="h5" color="error">
-            Something went wrong. Please try again later.
+            Oops! Something went wrong. Please try again later.
           </Typography>
         </Box>
       );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardActionArea,
@@ -8,14 +8,37 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
+import { fetchImage } from "../services/api";
 
-const BASE_IMAGE_URL =
-  process.env.REACT_APP_API_BASE_URL + "get_image/?image_name=";
+const sanitizeText = (text) => {
+  const element = document.createElement("div");
+  element.innerText = text;
+  return element.innerHTML;
+};
 
 function ReflectionCard({ reflection }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const imageUrl = `${BASE_IMAGE_URL}reflection_${reflection.id}.webp`;
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    const loadImage = async () => {
+      try {
+        const blob = await fetchImage(reflection.id, "reflection");
+        const blobUrl = URL.createObjectURL(blob);
+        setImageUrl(blobUrl);
+        setImageLoaded(true);
+      } catch (error) {
+        setImageError(true);
+        console.error("Fetch error:", error);
+      }
+    };
+    loadImage();
+  }, [reflection.id]);
+
+  const preventImageDownload = (e) => {
+    e.preventDefault();
+  };
 
   return (
     <Card
@@ -47,19 +70,22 @@ function ReflectionCard({ reflection }) {
             overflow: "hidden",
             padding: 2,
           }}
+          onContextMenu={preventImageDownload}
         >
-          <CardMedia
-            component="img"
-            alt={reflection.title}
-            image={imageUrl}
-            title={reflection.title}
-            sx={{
-              height: "110%",
-              objectFit: "contain",
-            }}
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-          />
+          {imageUrl && (
+            <CardMedia
+              component="img"
+              alt={sanitizeText(reflection.title)}
+              image={imageUrl}
+              title={sanitizeText(reflection.title)}
+              sx={{
+                height: "110%",
+                objectFit: "contain",
+                pointerEvents: "none",
+              }}
+              onDragStart={(e) => e.preventDefault()}
+            />
+          )}
           {!imageLoaded && !imageError && (
             <CircularProgress
               size={24}
@@ -85,6 +111,17 @@ function ReflectionCard({ reflection }) {
               Image failed to load
             </Typography>
           )}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              zIndex: 1,
+              backgroundColor: "rgba(0, 0, 0, 0.001)",
+            }}
+          ></Box>
         </Box>
         <CardContent
           sx={{
@@ -95,10 +132,10 @@ function ReflectionCard({ reflection }) {
           }}
         >
           <Typography gutterBottom variant="h6">
-            {reflection.title}
+            {sanitizeText(reflection.title)}
           </Typography>
           <Typography variant="body2" color="textSecondary">
-            {reflection.description}
+            {sanitizeText(reflection.description)}
           </Typography>
         </CardContent>
       </CardActionArea>

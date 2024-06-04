@@ -19,9 +19,9 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import debounce from "lodash.debounce";
+import { fetchArticleList } from "../services/api";
 
-const BASE_API_URL = process.env.REACT_APP_API_BASE_URL;
-const BASE_IMAGE_URL = `${BASE_API_URL}get_image/?image_name=`;
+const BASE_IMAGE_URL = `${process.env.REACT_APP_API_BASE_URL}get_image/?`;
 
 const ArticlePage = () => {
   const [articles, setArticles] = useState([]);
@@ -36,16 +36,12 @@ const ArticlePage = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${BASE_API_URL}article_list/`);
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const data = await response.json();
+      const data = await fetchArticleList();
       const sortedData = data.sort((a, b) => b.id - a.id);
       setArticles(sortedData);
       setFilteredArticles(sortedData);
     } catch (error) {
-      setError("Error fetching articles.");
+      setError("Oops! Couldn't fetch the articles.");
       console.error("Error fetching articles:", error);
     } finally {
       setIsLoading(false);
@@ -86,6 +82,10 @@ const ArticlePage = () => {
     ));
   }, []);
 
+  const preventImageDownload = (e) => {
+    e.preventDefault();
+  };
+
   return (
     <Container maxWidth="lg" sx={{ padding: 2 }}>
       <HeaderSection />
@@ -99,6 +99,7 @@ const ArticlePage = () => {
         error={error}
         filteredArticles={filteredArticles}
         handleOpenDialog={handleOpenDialog}
+        preventImageDownload={preventImageDownload}
       />
       <ArticleDialog
         openDialog={openDialog}
@@ -114,6 +115,9 @@ const HeaderSection = () => (
   <Box p={4}>
     <Typography variant="h4" gutterBottom>
       Articles
+    </Typography>
+    <Typography variant="body1" color="textSecondary">
+      Dive into a world of interesting reads. Explore, discover, and enjoy!
     </Typography>
   </Box>
 );
@@ -142,6 +146,7 @@ const ContentSection = ({
   error,
   filteredArticles,
   handleOpenDialog,
+  preventImageDownload,
 }) => (
   <Box px={4}>
     {isLoading ? (
@@ -153,16 +158,14 @@ const ContentSection = ({
         {error}
       </Typography>
     ) : filteredArticles.length > 0 ? (
-      <Grid container spacing={4}>
+      <Grid>
         {filteredArticles.map((article, index) => (
           <Grid item xs={12} key={index}>
             <Card>
               <CardActionArea onClick={() => handleOpenDialog(article)}>
-                <CardMedia
-                  component="img"
-                  image={`${BASE_IMAGE_URL}article_${article.id}.webp`}
-                  alt={article.title}
+                <Box
                   sx={{
+                    position: "relative",
                     height: {
                       xs: 150,
                       sm: 200,
@@ -170,10 +173,33 @@ const ContentSection = ({
                       lg: 300,
                       xl: 350,
                     },
-                    objectFit: "contain",
+                    overflow: "hidden",
                   }}
-                />
-
+                  onContextMenu={preventImageDownload}
+                >
+                  <CardMedia
+                    component="img"
+                    image={`${BASE_IMAGE_URL}image_id=${article.id}&type=article`}
+                    alt={article.title}
+                    sx={{
+                      height: "100%",
+                      objectFit: "contain",
+                      pointerEvents: "none",
+                    }}
+                    onDragStart={(e) => e.preventDefault()}
+                  />
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      zIndex: 1,
+                      backgroundColor: "rgba(0, 0, 0, 0.001)",
+                    }}
+                  ></Box>
+                </Box>
                 <CardContent>
                   <Typography variant="h6" noWrap>
                     {article.title}
@@ -200,7 +226,7 @@ const ContentSection = ({
       </Grid>
     ) : (
       <Typography variant="body1" sx={{ padding: 2, textAlign: "center" }}>
-        No articles found.
+        No articles found. Try searching for something else!
       </Typography>
     )}
   </Box>
