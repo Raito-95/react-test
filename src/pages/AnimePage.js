@@ -136,7 +136,7 @@ const AnimePage = () => {
   }, [animeData.maxYear, animeData.minYear]);
 
   return (
-    <Container>
+    <Container maxWidth="lg">
       <HeaderSection />
       <SearchSection
         searchTerm={searchTerm}
@@ -178,7 +178,7 @@ const SearchSection = ({
   handleYearFilter,
   yearOptions,
 }) => (
-  <Grid container alignItems="center" px={4}>
+  <Grid container alignItems="center" spacing={2} px={{ xs: 2, sm: 4 }}>
     <Grid item xs={12} sm={6}>
       <TextField
         fullWidth
@@ -223,7 +223,9 @@ const SearchSection = ({
 const ContentSection = ({ loading, error, filteredAnimes, imageStyles }) => (
   <Box p={4}>
     {loading ? (
-      <CircularProgress sx={{ marginTop: 2 }} />
+      <Box display="flex" justifyContent="center" mt={2}>
+        <CircularProgress />
+      </Box>
     ) : error ? (
       <Typography variant="body1" color="error" sx={{ marginTop: 2 }}>
         {error}
@@ -248,16 +250,15 @@ const ContentSection = ({ loading, error, filteredAnimes, imageStyles }) => (
             >
               {category}
             </Typography>
-            <Grid>
+            <Grid container spacing={2}>
               {animesForCategory.map((anime) => (
                 <Grid
                   key={anime.url}
                   item
                   xs={12}
                   sm={6}
-                  md={6}
-                  lg={4}
-                  xl={3}
+                  md={4}
+                  lg={3}
                   sx={{ minHeight: "300px" }}
                 >
                   <Card

@@ -62,7 +62,7 @@ const ContactPage = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ padding: 4 }}>
+    <Container maxWidth="md" sx={{ py: 4 }}>
       <HeaderSection />
       <NotificationSection notification={notification} />
       <ContactForm
@@ -86,7 +86,7 @@ const HeaderSection = () => (
 
 const NotificationSection = ({ notification }) =>
   notification && (
-    <Box my={4}>
+    <Box my={2}>
       <Alert severity={notification.type}>{notification.message}</Alert>
     </Box>
   );
@@ -99,7 +99,7 @@ const ContactForm = ({
   isSubmitting,
 }) => (
   <form onSubmit={handleSubmit}>
-    <Stack spacing={4}>
+    <Stack spacing={3}>
       <TextField
         name="name"
         label="Name"
@@ -131,17 +131,17 @@ const ContactForm = ({
         onChange={handleInputChange}
         required
       />
-      <Button
-        type="submit"
-        variant="contained"
-        color="primary"
-        fullWidth
-        disabled={isSubmitting || !!emailError}
-        aria-label="Submit"
-        endIcon={isSubmitting ? <CircularProgress size="1rem" /> : null}
-      >
-        {isSubmitting ? "Submitting..." : "Submit"}
-      </Button>
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          disabled={isSubmitting || !!emailError}
+          endIcon={isSubmitting ? <CircularProgress size="1rem" /> : null}
+        >
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
+      </Box>
     </Stack>
   </form>
 );

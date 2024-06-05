@@ -46,8 +46,8 @@ function ReflectionCard({ reflection }) {
       sx={{
         display: "flex",
         flexDirection: "column",
-        margin: 2,
-        borderRadius: "16px",
+        m: 2,
+        borderRadius: 2,
         height: "100%",
       }}
     >
@@ -55,20 +55,20 @@ function ReflectionCard({ reflection }) {
         <Box
           sx={{
             height: {
-              xs: "200px",
-              sm: "250px",
-              md: "250px",
-              lg: "300px",
-              xl: "300px",
+              xs: 200,
+              sm: 250,
+              md: 250,
+              lg: 300,
+              xl: 300,
             },
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             position: "relative",
-            borderTopLeftRadius: "16px",
-            borderTopRightRadius: "16px",
+            borderTopLeftRadius: 2,
+            borderTopRightRadius: 2,
             overflow: "hidden",
-            padding: 2,
+            p: 2,
           }}
           onContextMenu={preventImageDownload}
         >
@@ -121,7 +121,7 @@ function ReflectionCard({ reflection }) {
               zIndex: 1,
               backgroundColor: "rgba(0, 0, 0, 0.001)",
             }}
-          ></Box>
+          />
         </Box>
         <CardContent
           sx={{
@@ -129,6 +129,7 @@ function ReflectionCard({ reflection }) {
             flexDirection: "column",
             justifyContent: "space-between",
             flexGrow: 1,
+            p: 2,
           }}
         >
           <Typography gutterBottom variant="h6">

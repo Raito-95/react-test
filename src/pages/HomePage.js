@@ -44,7 +44,7 @@ const HomePage = () => {
   };
 
   return (
-    <Container>
+    <Container sx={{ py: 4 }}>
       <WelcomeSection navigate={navigate} />
       {loading ? (
         <LoadingSection />
@@ -65,7 +65,7 @@ const HomePage = () => {
 };
 
 const WelcomeSection = ({ navigate }) => (
-  <Box textAlign="center" p={4}>
+  <Box textAlign="center" mb={4}>
     <Typography variant="h3" gutterBottom>
       Hey there, I'm Raito
     </Typography>
@@ -85,21 +85,21 @@ const WelcomeSection = ({ navigate }) => (
 );
 
 const LoadingSection = () => (
-  <Box sx={{ display: "flex", justifyContent: "center", mx: 4, mb: 4 }}>
+  <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
     <CircularProgress />
   </Box>
 );
 
 const ErrorSection = ({ error }) => (
-  <Typography variant="h6" color="error" align="center">
+  <Typography variant="h6" color="error" align="center" sx={{ my: 4 }}>
     {error}
   </Typography>
 );
 
 const ReflectionsGrid = ({ reflections, displayCount }) => (
-  <Grid container spacing={4}>
+  <Grid container spacing={4} sx={{ mb: 4 }}>
     {reflections.slice(0, displayCount).map((reflection) => (
-      <Grid item xs={12} sm={6} md={6} lg={4} xl={4} key={reflection.id}>
+      <Grid item xs={12} sm={6} md={4} key={reflection.id}>
         <ReflectionCard reflection={reflection} />
       </Grid>
     ))}
@@ -107,7 +107,7 @@ const ReflectionsGrid = ({ reflections, displayCount }) => (
 );
 
 const LoadMoreButton = ({ onClick }) => (
-  <Box textAlign="center" mx={4} mb={4}>
+  <Box textAlign="center" my={4}>
     <Button
       variant="contained"
       onClick={onClick}
@@ -119,7 +119,7 @@ const LoadMoreButton = ({ onClick }) => (
 );
 
 const ContactSection = ({ navigate }) => (
-  <Box textAlign="center" p={4}>
+  <Box textAlign="center" py={4}>
     <Typography variant="h4" gutterBottom>
       Get in Touch
     </Typography>

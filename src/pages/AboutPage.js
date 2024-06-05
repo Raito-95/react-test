@@ -39,8 +39,9 @@ const AboutPage = () => {
   return (
     <Container>
       <ProfileSection loading={loading} error={error} image={image} />
-      <Divider variant="middle" />
+      <Divider variant="middle" sx={{ my: 4 }} />
       <ContentSection />
+      <Divider variant="middle" sx={{ my: 4 }} />
       <ActionButtons navigate={navigate} />
     </Container>
   );

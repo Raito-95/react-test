@@ -139,7 +139,7 @@ const App = () => {
             <TopBar setThemeMode={setThemeMode} />
             <ErrorBoundary>
               <Suspense fallback={<Loading />}>
-                <Box sx={{ paddingTop: "64px" }}>
+                <Box sx={{ pt: "64px", px: { xs: 2, sm: 3, md: 4 }, pb: 4 }}>
                   <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/about" element={<AboutPage />} />

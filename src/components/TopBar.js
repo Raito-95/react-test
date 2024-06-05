@@ -104,14 +104,15 @@ const TopBar = ({ setThemeMode }) => {
     >
       <Toolbar>
         <StyledIconButton
-          edge="end"
+          edge="start"
           color="inherit"
           aria-label="menu"
           onClick={() => setDrawerOpen(true)}
+          sx={{ mr: 2 }}
         >
           <StyledMenuIcon />
         </StyledIconButton>
-        <Box flexGrow={1} />
+        <Box sx={{ flexGrow: 1 }} />
         <StyledIconButton
           color="inherit"
           component="a"
@@ -119,6 +120,7 @@ const TopBar = ({ setThemeMode }) => {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="LinkedIn"
+          sx={{ mx: 1 }}
         >
           <LinkedInIcon />
         </StyledIconButton>
@@ -129,6 +131,7 @@ const TopBar = ({ setThemeMode }) => {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="GitHub"
+          sx={{ mx: 1 }}
         >
           <GitHubIcon />
         </StyledIconButton>
@@ -139,6 +142,7 @@ const TopBar = ({ setThemeMode }) => {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="LeetCode"
+          sx={{ mx: 1 }}
         >
           <SiLeetcode />
         </StyledIconButton>
@@ -146,6 +150,7 @@ const TopBar = ({ setThemeMode }) => {
           color="inherit"
           onClick={toggleThemeMode}
           aria-label="Toggle theme"
+          sx={{ mx: 1 }}
         >
           {currentThemeMode === "dark" ? <Brightness7 /> : <Brightness4 />}
         </StyledIconButton>
@@ -161,10 +166,11 @@ const TopBar = ({ setThemeMode }) => {
                 component={Link}
                 to={item.link}
                 onClick={() => setDrawerOpen(false)}
+                sx={{ px: 3 }}
               >
                 <Box display="flex" alignItems="center">
                   {item.icon}
-                  <ListItemText primary={item.text} sx={{ marginLeft: 2 }} />
+                  <ListItemText primary={item.text} sx={{ ml: 2 }} />
                 </Box>
               </StyledListItemButton>
             ))}

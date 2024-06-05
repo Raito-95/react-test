@@ -231,8 +231,8 @@ const SensorSection = ({ sensorData, chartData }) => {
     <>
       {Object.entries(sensorData).map(([sensorType, { data, max, min }]) => (
         <Grid item xs={12} md={6} lg={4} key={sensorType}>
-          <Card sx={{ height: 500 }}>
-            <Box sx={{ height: 200, overflow: "auto", padding: 2 }}>
+          <Card sx={{ height: 500, mb: 4 }}>
+            <Box sx={{ height: 200, overflow: "auto", p: 2 }}>
               <Typography variant="h5" component="h2">
                 {sensorType.charAt(0).toUpperCase() + sensorType.slice(1)}
               </Typography>
@@ -258,7 +258,7 @@ const SensorPage = () => {
   const { sensorData, chartData, error } = useSensors();
 
   return (
-    <Grid container spacing={2} style={{ padding: 2 }}>
+    <Grid container spacing={4} sx={{ py: 4, px: 2 }}>
       {error ? (
         <HeaderSection error={error} />
       ) : (

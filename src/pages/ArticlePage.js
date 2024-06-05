@@ -112,7 +112,7 @@ const ArticlePage = () => {
 };
 
 const HeaderSection = () => (
-  <Box p={4}>
+  <Box sx={{ padding: 4 }}>
     <Typography variant="h4" gutterBottom>
       Articles
     </Typography>
@@ -123,7 +123,7 @@ const HeaderSection = () => (
 );
 
 const SearchSection = ({ searchTerm, setSearchTerm, debouncedSearch }) => (
-  <Box px={4} pb={4}>
+  <Box sx={{ paddingX: 4, paddingBottom: 4 }}>
     <TextField
       fullWidth
       variant="outlined"
@@ -148,9 +148,9 @@ const ContentSection = ({
   handleOpenDialog,
   preventImageDownload,
 }) => (
-  <Box px={4}>
+  <Box sx={{ paddingX: 4 }}>
     {isLoading ? (
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
+      <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
         <CircularProgress />
       </Box>
     ) : error ? (
@@ -158,9 +158,9 @@ const ContentSection = ({
         {error}
       </Typography>
     ) : filteredArticles.length > 0 ? (
-      <Grid>
+      <Grid container spacing={4}>
         {filteredArticles.map((article, index) => (
-          <Grid item xs={12} key={index}>
+          <Grid item xs={12} sm={6} md={4} key={index}>
             <Card>
               <CardActionArea onClick={() => handleOpenDialog(article)}>
                 <Box
