@@ -78,7 +78,12 @@ const AnimePage = () => {
         maxYear: latestYear,
       });
       setFilteredAnimes(
-        sortedList.filter((anime) => anime.year === latestYear)
+        sortedList
+          .filter((anime) => anime.year === latestYear)
+          .map((anime) => ({
+            ...anime,
+            showTitle: false,
+          }))
       );
       setImageStyles({ ...styles });
     } catch (error) {
@@ -94,17 +99,23 @@ const AnimePage = () => {
   }, [fetchAnimeData]);
 
   useEffect(() => {
-    const filtered = animeData.list.filter(
-      (anime) => anime.year === animeData.year
-    );
+    const filtered = animeData.list
+      .filter((anime) => anime.year === animeData.year)
+      .map((anime) => ({
+        ...anime,
+        showTitle: false,
+      }));
     setFilteredAnimes(filtered);
   }, [animeData]);
 
   const handleYearFilter = useCallback(
     (selectedYear) => {
-      const filtered = animeData.list.filter(
-        (anime) => anime.year === selectedYear
-      );
+      const filtered = animeData.list
+        .filter((anime) => anime.year === selectedYear)
+        .map((anime) => ({
+          ...anime,
+          showTitle: false,
+        }));
       setFilteredAnimes(filtered);
     },
     [animeData.list]
@@ -113,9 +124,14 @@ const AnimePage = () => {
   const handleSearch = useCallback(
     (term) => {
       if (term) {
-        const filtered = animeData.list.filter((anime) =>
-          anime.name.toLowerCase().includes(term.toLowerCase())
-        );
+        const filtered = animeData.list
+          .filter((anime) =>
+            anime.name.toLowerCase().includes(term.toLowerCase())
+          )
+          .map((anime) => ({
+            ...anime,
+            showTitle: false,
+          }));
         setFilteredAnimes(filtered);
       } else {
         handleYearFilter(animeData.year);
@@ -135,6 +151,14 @@ const AnimePage = () => {
     );
   }, [animeData.maxYear, animeData.minYear]);
 
+  const toggleShowTitle = (url) => {
+    setFilteredAnimes((prev) =>
+      prev.map((anime) =>
+        anime.url === url ? { ...anime, showTitle: !anime.showTitle } : anime
+      )
+    );
+  };
+
   return (
     <Container maxWidth="lg">
       <HeaderSection />
@@ -152,6 +176,7 @@ const AnimePage = () => {
         error={error}
         filteredAnimes={filteredAnimes}
         imageStyles={imageStyles}
+        toggleShowTitle={toggleShowTitle}
       />
     </Container>
   );
@@ -220,7 +245,13 @@ const SearchSection = ({
   </Grid>
 );
 
-const ContentSection = ({ loading, error, filteredAnimes, imageStyles }) => (
+const ContentSection = ({
+  loading,
+  error,
+  filteredAnimes,
+  imageStyles,
+  toggleShowTitle,
+}) => (
   <Box p={4}>
     {loading ? (
       <Box display="flex" justifyContent="center" mt={2}>
@@ -261,25 +292,31 @@ const ContentSection = ({ loading, error, filteredAnimes, imageStyles }) => (
                   lg={3}
                   sx={{ minHeight: "300px" }}
                 >
-                  <Card
-                    component="a"
-                    href={anime.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{ textDecoration: "none", height: "100%" }}
-                  >
-                    <div
-                      style={{
+                  <Card sx={{ height: "100%" }}>
+                    <Box
+                      component="a"
+                      href={anime.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{
+                        display: "block",
+                        textDecoration: "none",
+                        height: "300px",
+                        ...imageStyles[anime.url],
                         backgroundImage: `url(${anime.image_url})`,
                         backgroundSize: "contain",
                         backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
-                        ...imageStyles[anime.url],
                       }}
-                    ></div>
+                    />
                     <CardContent>
-                      <Typography variant="subtitle1" align="center">
-                        {anime.name}
+                      <Typography
+                        variant="subtitle1"
+                        align="center"
+                        onClick={() => toggleShowTitle(anime.url)}
+                        sx={{ cursor: "pointer" }}
+                      >
+                        {anime.showTitle ? anime.title : anime.name}
                       </Typography>
                     </CardContent>
                   </Card>
