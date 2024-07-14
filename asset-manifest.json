@@ -1,11 +1,11 @@
 {
   "files": {
     "main.css": "/react-test/static/css/main.e6c13ad2.css",
-    "main.js": "/react-test/static/js/main.1ba77411.js",
+    "main.js": "/react-test/static/js/main.48648169.js",
     "static/js/244.51c57c29.chunk.js": "/react-test/static/js/244.51c57c29.chunk.js",
     "static/js/717.a6703d29.chunk.js": "/react-test/static/js/717.a6703d29.chunk.js",
-    "static/js/447.b7d5232b.chunk.js": "/react-test/static/js/447.b7d5232b.chunk.js",
-    "static/js/25.a9744e86.chunk.js": "/react-test/static/js/25.a9744e86.chunk.js",
+    "static/js/447.015cb78b.chunk.js": "/react-test/static/js/447.015cb78b.chunk.js",
+    "static/js/25.770daddd.chunk.js": "/react-test/static/js/25.770daddd.chunk.js",
     "static/js/545.7851d244.chunk.js": "/react-test/static/js/545.7851d244.chunk.js",
     "static/js/380.a0933f75.chunk.js": "/react-test/static/js/380.a0933f75.chunk.js",
     "static/js/496.a15ebc48.chunk.js": "/react-test/static/js/496.a15ebc48.chunk.js",
@@ -15,11 +15,11 @@
     "static/js/925.43c4a5e2.chunk.js": "/react-test/static/js/925.43c4a5e2.chunk.js",
     "index.html": "/react-test/index.html",
     "main.e6c13ad2.css.map": "/react-test/static/css/main.e6c13ad2.css.map",
-    "main.1ba77411.js.map": "/react-test/static/js/main.1ba77411.js.map",
+    "main.48648169.js.map": "/react-test/static/js/main.48648169.js.map",
     "244.51c57c29.chunk.js.map": "/react-test/static/js/244.51c57c29.chunk.js.map",
     "717.a6703d29.chunk.js.map": "/react-test/static/js/717.a6703d29.chunk.js.map",
-    "447.b7d5232b.chunk.js.map": "/react-test/static/js/447.b7d5232b.chunk.js.map",
-    "25.a9744e86.chunk.js.map": "/react-test/static/js/25.a9744e86.chunk.js.map",
+    "447.015cb78b.chunk.js.map": "/react-test/static/js/447.015cb78b.chunk.js.map",
+    "25.770daddd.chunk.js.map": "/react-test/static/js/25.770daddd.chunk.js.map",
     "545.7851d244.chunk.js.map": "/react-test/static/js/545.7851d244.chunk.js.map",
     "380.a0933f75.chunk.js.map": "/react-test/static/js/380.a0933f75.chunk.js.map",
     "496.a15ebc48.chunk.js.map": "/react-test/static/js/496.a15ebc48.chunk.js.map",
@@ -30,6 +30,6 @@
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.1ba77411.js"
+    "static/js/main.48648169.js"
   ]
 }
