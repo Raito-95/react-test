@@ -292,7 +292,12 @@ const ContentSection = ({
                   lg={3}
                   sx={{ minHeight: "300px" }}
                 >
-                  <Card sx={{ height: "100%" }}>
+                  <Card
+                    sx={{
+                      height: "100%",
+                      backgroundImage: "none",
+                    }}
+                  >
                     <Box
                       component="a"
                       href={anime.url}
