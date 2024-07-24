@@ -299,21 +299,27 @@ const ContentSection = ({
                     }}
                   >
                     <Box
-                      component="a"
-                      href={anime.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       sx={{
-                        display: "block",
-                        textDecoration: "none",
-                        height: "300px",
-                        ...imageStyles[anime.url],
-                        backgroundImage: `url(${anime.image_url})`,
-                        backgroundSize: "contain",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
+                        padding: "16px",
                       }}
-                    />
+                    >
+                      <Box
+                        component="a"
+                        href={anime.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          display: "block",
+                          textDecoration: "none",
+                          height: "300px",
+                          ...imageStyles[anime.url],
+                          backgroundImage: `url(${anime.image_url})`,
+                          backgroundSize: "contain",
+                          backgroundPosition: "center",
+                          backgroundRepeat: "no-repeat",
+                        }}
+                      />
+                    </Box>
                     <CardContent>
                       <Typography
                         variant="subtitle1"
