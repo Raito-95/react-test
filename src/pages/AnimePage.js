@@ -296,6 +296,7 @@ const ContentSection = ({
                     sx={{
                       height: "100%",
                       backgroundImage: "none",
+                      boxShadow: '1px 2px 9px #ADD8E6',
                     }}
                   >
                     <Box
