@@ -7,10 +7,30 @@ const api = axios.create({
   withCredentials: true,
 });
 
+let csrfToken = null;
+
 export const fetchCSRFToken = async () => {
-  const response = await api.get("get_csrf_token/");
-  return response.data.csrfToken;
+  if (!csrfToken) {
+    const response = await api.get("get_csrf_token/");
+    csrfToken = response.data.csrfToken;
+  }
+  return csrfToken;
 };
+
+api.interceptors.request.use(
+  async (config) => {
+    if (!csrfToken && config.method !== "get") {
+      csrfToken = await fetchCSRFToken();
+    }
+    if (csrfToken) {
+      config.headers["X-CSRFToken"] = csrfToken;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export const fetchAnimeList = async () => {
   const response = await api.get("anime_list/");
@@ -37,11 +57,10 @@ export const fetchImage = async (imageId, imageType = null) => {
   return response.data;
 };
 
-export const submitContactForm = async (formData, csrfToken) => {
+export const submitContactForm = async (formData) => {
   const response = await api.post("submit_contact_form/", formData, {
     headers: {
       "Content-Type": "application/json",
-      "X-CSRFToken": csrfToken,
     },
   });
   return response.data;

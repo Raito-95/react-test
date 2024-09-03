@@ -67,10 +67,17 @@ const TopBar = ({ setThemeMode }) => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollPosition = window.scrollY;
-      setHide(currentScrollPosition > scrollPosition);
+      const threshold = 20;
+  
+      if (currentScrollPosition - scrollPosition > threshold) {
+        setHide(true);
+      } 
+      else if (scrollPosition - currentScrollPosition > threshold) {
+        setHide(false);
+      }
       setScrollPosition(currentScrollPosition);
     };
-
+  
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [scrollPosition]);

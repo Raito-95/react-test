@@ -14,6 +14,7 @@ import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import TopBar from "./components/TopBar";
 import EntranceAnimation from "./components/EntranceAnimation";
+import { fetchCSRFToken } from "./services/api";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -100,6 +101,29 @@ const ScrollTop = ({ children }) => {
   );
 };
 
+const CSRFLoader = ({ children }) => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCSRFToken = async () => {
+      try {
+        await fetchCSRFToken();
+        setLoading(false);
+      } catch (error) {
+        console.error("Error loading CSRF token:", error);
+      }
+    };
+
+    loadCSRFToken();
+  }, []);
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  return children;
+};
+
 const App = () => {
   const storedThemeMode = localStorage.getItem("themeMode") || "light";
   const [themeMode, setThemeMode] = useState(storedThemeMode);
@@ -132,35 +156,37 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <div id="back-to-top-anchor" />
-        {animationCompleted ? (
-          <>
-            <TopBar setThemeMode={setThemeMode} />
-            <ErrorBoundary>
-              <Suspense fallback={<Loading />}>
-                <Box sx={{ pt: "64px", px: { xs: 2, sm: 3, md: 4 }, pb: 4 }}>
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/anime" element={<AnimePage />} />
-                    <Route path="/article" element={<ArticlePage />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/sensor" element={<SensorPage />} />
-                  </Routes>
-                </Box>
-              </Suspense>
-            </ErrorBoundary>
-          </>
-        ) : (
-          <EntranceAnimation>Welcome</EntranceAnimation>
-        )}
-        <ScrollTop>
-          <Fab color="primary" size="small" aria-label="scroll back to top">
-            <ArrowUpwardIcon />
-          </Fab>
-        </ScrollTop>
-      </Router>
+      <CSRFLoader>
+        <Router>
+          <div id="back-to-top-anchor" />
+          {animationCompleted ? (
+            <>
+              <TopBar setThemeMode={setThemeMode} />
+              <ErrorBoundary>
+                <Suspense fallback={<Loading />}>
+                  <Box sx={{ pt: "64px", px: { xs: 2, sm: 3, md: 4 }, pb: 4 }}>
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/about" element={<AboutPage />} />
+                      <Route path="/anime" element={<AnimePage />} />
+                      <Route path="/article" element={<ArticlePage />} />
+                      <Route path="/contact" element={<ContactPage />} />
+                      <Route path="/sensor" element={<SensorPage />} />
+                    </Routes>
+                  </Box>
+                </Suspense>
+              </ErrorBoundary>
+            </>
+          ) : (
+            <EntranceAnimation>Welcome</EntranceAnimation>
+          )}
+          <ScrollTop>
+            <Fab color="primary" size="small" aria-label="scroll back to top">
+              <ArrowUpwardIcon />
+            </Fab>
+          </ScrollTop>
+        </Router>
+      </CSRFLoader>
     </ThemeProvider>
   );
 };
