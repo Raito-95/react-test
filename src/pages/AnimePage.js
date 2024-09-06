@@ -13,6 +13,7 @@ import {
   FormControl,
   CircularProgress,
   Box,
+  useMediaQuery,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { fetchAnimeList } from "../services/api";
@@ -28,7 +29,6 @@ const AnimePage = () => {
     minYear: 0,
     maxYear: new Date().getFullYear(),
   });
-  const [imageStyles, setImageStyles] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -50,27 +50,6 @@ const AnimePage = () => {
       const earliestYear =
         sortedList[sortedList.length - 1]?.year || latestYear;
 
-      const styles = {};
-      await Promise.all(
-        sortedList.map(
-          (anime) =>
-            new Promise((resolve) => {
-              const img = new Image();
-              img.onload = () => {
-                const isPortrait = img.height > img.width;
-                const aspectRatio = img.width / img.height;
-                const height = isPortrait ? "300px" : `${300 / aspectRatio}px`;
-                styles[anime.url] = {
-                  height: height,
-                  width: "100%",
-                };
-                resolve();
-              };
-              img.src = anime.image_url;
-            })
-        )
-      );
-
       setAnimeData({
         list: sortedList,
         year: latestYear,
@@ -85,7 +64,6 @@ const AnimePage = () => {
             showTitle: false,
           }))
       );
-      setImageStyles({ ...styles });
     } catch (error) {
       setError("Uh-oh! Something went wrong while fetching the anime list.");
       console.error("Error fetching anime list:", error);
@@ -175,7 +153,6 @@ const AnimePage = () => {
         loading={loading}
         error={error}
         filteredAnimes={filteredAnimes}
-        imageStyles={imageStyles}
         toggleShowTitle={toggleShowTitle}
       />
     </Container>
@@ -249,92 +226,107 @@ const ContentSection = ({
   loading,
   error,
   filteredAnimes,
-  imageStyles,
   toggleShowTitle,
-}) => (
-  <Box p={4}>
-    {loading ? (
-      <Box display="flex" justifyContent="center" mt={2}>
-        <CircularProgress />
-      </Box>
-    ) : error ? (
-      <Typography variant="body1" color="error" sx={{ marginTop: 2 }}>
-        {error}
-      </Typography>
-    ) : filteredAnimes.length === 0 ? (
-      <Typography variant="body1" sx={{ marginTop: 2 }}>
-        No anime found. Try searching something else!
-      </Typography>
-    ) : (
-      categoryOrder.map((category) => {
-        const animesForCategory = filteredAnimes.filter(
-          (anime) => anime.category === category
-        );
-        if (animesForCategory.length === 0) return null;
+}) => {
+  const isXs = useMediaQuery("(max-width: 600px)");
+  const isSm = useMediaQuery("(min-width: 601px) and (max-width: 960px)");
+  const isMd = useMediaQuery("(min-width: 961px) and (max-width: 1280px)");
+  const isLg = useMediaQuery("(min-width: 1281px) and (max-width: 1920px)");
 
-        return (
-          <div key={category}>
-            <Typography
-              variant="h4"
-              align="center"
-              sx={{ marginTop: "2em", marginBottom: "1em" }}
-            >
-              {category}
-            </Typography>
-            <Grid container spacing={2}>
-              {animesForCategory.map((anime) => (
-                <Grid
-                  key={anime.url}
-                  item
-                  xs={12}
-                  sm={6}
-                  md={4}
-                  lg={3}
-                  sx={{ minHeight: "300px" }}
-                >
-                  <Card
-                    sx={{
-                      height: "100%",
-                      backgroundImage: "none",
-                      boxShadow: "1px 2px 9px #D0D0D0",
-                    }}
+  const getGridItemSize = () => {
+    if (isXs) return 12;
+    if (isSm) return 6;
+    if (isMd) return 4;
+    if (isLg) return 3;
+    return 2;
+  };
+
+  return (
+    <Box p={4}>
+      {loading ? (
+        <Box display="flex" justifyContent="center" mt={2}>
+          <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Typography variant="body1" color="error" sx={{ marginTop: 2 }}>
+          {error}
+        </Typography>
+      ) : filteredAnimes.length === 0 ? (
+        <Typography variant="body1" sx={{ marginTop: 2 }}>
+          No anime found. Try searching something else!
+        </Typography>
+      ) : (
+        categoryOrder.map((category) => {
+          const animesForCategory = filteredAnimes.filter(
+            (anime) => anime.category === category
+          );
+          if (animesForCategory.length === 0) return null;
+
+          return (
+            <Box key={category} mb={4}>
+              <Typography
+                variant="h4"
+                align="center"
+                sx={{ marginTop: "2em", marginBottom: "1em" }}
+              >
+                {category}
+              </Typography>
+
+              <Grid container spacing={2} justifyContent="center">
+                {animesForCategory.map((anime) => (
+                  <Grid
+                    key={anime.url}
+                    item
+                    xs={getGridItemSize()}
+                    sx={{ padding: "8px", minHeight: "auto" }}
                   >
-                    <Box
-                      component="a"
-                      href={anime.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Card
                       sx={{
-                        display: "block",
-                        textDecoration: "none",
-                        height: "300px",
-                        marginTop: "16px",
-                        ...imageStyles[anime.url],
-                        backgroundImage: `url(${anime.image_url})`,
-                        backgroundSize: "contain",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
+                        height: "100%",
+                        backgroundImage: "none",
+                        boxShadow: "1px 2px 9px #D0D0D0",
                       }}
-                    />
-                    <CardContent>
-                      <Typography
-                        variant="subtitle1"
-                        align="center"
-                        onClick={() => toggleShowTitle(anime.url)}
-                        sx={{ cursor: "pointer" }}
+                    >
+                      <Box
+                        component="a"
+                        href={anime.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          display: "block",
+                          textDecoration: "none",
+                        }}
                       >
-                        {anime.showTitle ? anime.title : anime.name}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </div>
-        );
-      })
-    )}
-  </Box>
-);
+                        <img
+                          src={anime.image_url}
+                          alt={anime.name}
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            objectFit: "contain",
+                          }}
+                        />
+                      </Box>
+                      <CardContent>
+                        <Typography
+                          variant="subtitle1"
+                          align="center"
+                          onClick={() => toggleShowTitle(anime.url)}
+                          sx={{ cursor: "pointer" }}
+                        >
+                          {anime.showTitle ? anime.title : anime.name}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          );
+        })
+      )}
+    </Box>
+  );
+};
 
 export default AnimePage;
