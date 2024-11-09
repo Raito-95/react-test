@@ -309,7 +309,7 @@ const ContentSection = ({
                       </Box>
                       <CardContent>
                         <Typography
-                          variant="subtitle1"
+                          variant="subtitle2"
                           align="center"
                           onClick={() => toggleShowTitle(anime.url)}
                           sx={{ cursor: "pointer" }}
