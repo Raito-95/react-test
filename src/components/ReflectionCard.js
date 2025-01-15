@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Card,
   CardActionArea,
@@ -10,6 +10,44 @@ import {
 } from "@mui/material";
 import { fetchImage } from "../services/api";
 
+const useImageLoader = (imageId, type) => {
+  const [imageUrl, setImageUrl] = React.useState(null);
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+  const [imageError, setImageError] = React.useState(false);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const loadImage = async () => {
+      try {
+        const blob = await fetchImage(imageId, type);
+        const blobUrl = URL.createObjectURL(blob);
+        if (isMounted) {
+          setImageUrl(blobUrl);
+          setImageLoaded(true);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setImageError(true);
+          console.error("Fetch error:", error);
+        }
+      }
+    };
+
+    loadImage();
+
+    return () => {
+      isMounted = false;
+      setImageUrl((prevUrl) => {
+        if (prevUrl) URL.revokeObjectURL(prevUrl);
+        return null;
+      });
+    };
+  }, [imageId, type]);
+
+  return { imageUrl, imageLoaded, imageError };
+};
+
 const sanitizeText = (text) => {
   const element = document.createElement("div");
   element.innerText = text;
@@ -17,24 +55,10 @@ const sanitizeText = (text) => {
 };
 
 function ReflectionCard({ reflection }) {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [imageUrl, setImageUrl] = useState(null);
-
-  useEffect(() => {
-    const loadImage = async () => {
-      try {
-        const blob = await fetchImage(reflection.id, "reflection");
-        const blobUrl = URL.createObjectURL(blob);
-        setImageUrl(blobUrl);
-        setImageLoaded(true);
-      } catch (error) {
-        setImageError(true);
-        console.error("Fetch error:", error);
-      }
-    };
-    loadImage();
-  }, [reflection.id]);
+  const { imageUrl, imageLoaded, imageError } = useImageLoader(
+    reflection.id,
+    "reflection"
+  );
 
   const preventImageDownload = (e) => {
     e.preventDefault();
@@ -54,13 +78,7 @@ function ReflectionCard({ reflection }) {
       <CardActionArea sx={{ flex: 1 }}>
         <Box
           sx={{
-            height: {
-              xs: 200,
-              sm: 250,
-              md: 250,
-              lg: 300,
-              xl: 300,
-            },
+            height: { xs: 200, sm: 250, md: 250, lg: 300, xl: 300 },
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -111,17 +129,6 @@ function ReflectionCard({ reflection }) {
               Image failed to load
             </Typography>
           )}
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              zIndex: 1,
-              backgroundColor: "rgba(0, 0, 0, 0.001)",
-            }}
-          />
         </Box>
         <CardContent
           sx={{
@@ -132,10 +139,10 @@ function ReflectionCard({ reflection }) {
             p: 2,
           }}
         >
-          <Typography gutterBottom variant="h6">
+          <Typography gutterBottom variant="h6" noWrap>
             {sanitizeText(reflection.title)}
           </Typography>
-          <Typography variant="body2" color="textSecondary">
+          <Typography variant="body2" color="textSecondary" noWrap>
             {sanitizeText(reflection.description)}
           </Typography>
         </CardContent>

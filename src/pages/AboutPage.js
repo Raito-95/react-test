@@ -10,7 +10,17 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { fetchImage } from "../services/api";
+import { fetchImage as fetchImageAPI } from "../services/api";
+
+const fetchImage = async (imageId, onSuccess, onError) => {
+  try {
+    const blob = await fetchImageAPI(imageId);
+    const blobUrl = URL.createObjectURL(blob);
+    onSuccess(blobUrl);
+  } catch (error) {
+    onError(error);
+  }
+};
 
 const AboutPage = () => {
   const [image, setImage] = useState(null);
@@ -21,26 +31,30 @@ const AboutPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadImage = async () => {
-      try {
-        const blob = await fetchImage(imageId);
-        const blobUrl = URL.createObjectURL(blob);
-        setImage(blobUrl);
-      } catch (error) {
-        setError("Oops! Couldn't load the image.");
-        console.error("Fetch error:", error);
-      } finally {
-        setLoading(false);
-      }
+    const handleSuccess = (url) => {
+      setImage(url);
+      setError(null);
     };
-    loadImage();
+
+    const handleError = () => {
+      setError("Oops! Couldn't load the image.");
+    };
+
+    setLoading(true);
+    fetchImage(imageId, handleSuccess, handleError).finally(() => {
+      setLoading(false);
+    });
   }, [imageId]);
 
   return (
     <Container>
       <ProfileSection loading={loading} error={error} image={image} />
       <Divider variant="middle" sx={{ my: 4 }} />
-      <ContentSection />
+      <ContentSection
+        title="Starting the Journey"
+        description="Every twist, every high and low, adds a new chapter to life's story. Let's
+        dive deep together and explore this amazing journey."
+      />
       <Divider variant="middle" sx={{ my: 4 }} />
       <ActionButtons navigate={navigate} />
     </Container>
@@ -48,6 +62,26 @@ const AboutPage = () => {
 };
 
 const ProfileSection = ({ loading, error, image }) => (
+  <InfoSection
+    loading={loading}
+    error={error}
+    image={image}
+    title="About Me"
+    subtitle="The Beautiful Mysteries of Life"
+    imageAlt="Profile Image"
+    avatarSize={150}
+  />
+);
+
+const InfoSection = ({
+  loading,
+  error,
+  image,
+  title,
+  subtitle,
+  imageAlt,
+  avatarSize = 100,
+}) => (
   <Box display="flex" flexDirection="column" alignItems="center" p={4}>
     {loading ? (
       <CircularProgress />
@@ -58,27 +92,26 @@ const ProfileSection = ({ loading, error, image }) => (
     ) : (
       <Avatar
         src={image}
-        alt="Profile Image"
-        sx={{ width: 150, height: 150, mb: 2 }}
+        alt={imageAlt}
+        sx={{ width: avatarSize, height: avatarSize, mb: 2 }}
       />
     )}
     <Typography variant="h3" gutterBottom>
-      About Me
+      {title}
     </Typography>
     <Typography variant="h6" paragraph>
-      The Beautiful Mysteries of Life
+      {subtitle}
     </Typography>
   </Box>
 );
 
-const ContentSection = () => (
+const ContentSection = ({ title, description }) => (
   <Box textAlign="center" p={4}>
     <Typography variant="h4" gutterBottom>
-      Starting the Journey
+      {title}
     </Typography>
     <Typography variant="body1" paragraph>
-      Every twist, every high and low, adds a new chapter to life's story. Let's
-      dive deep together and explore this amazing journey.
+      {description}
     </Typography>
   </Box>
 );

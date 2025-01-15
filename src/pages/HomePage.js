@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Container,
   Typography,
@@ -11,58 +11,94 @@ import { useNavigate } from "react-router-dom";
 import ReflectionCard from "../components/ReflectionCard";
 import { fetchReflectionList } from "../services/api";
 
-const HomePage = () => {
-  const [reflections, setReflections] = useState([]);
-  const [displayCount, setDisplayCount] = useState(12);
-  const [loading, setIsLoading] = useState(false);
+const useFetchReflections = (initialReflections = []) => {
+  const [reflections, setReflections] = useState(initialReflections);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
+
+  const loadReflections = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchReflectionList();
+      if (Array.isArray(data)) {
+        setReflections(data.sort((a, b) => b.id - a.id));
+        setError(null);
+      } else {
+        throw new Error("Invalid data format received from the server.");
+      }
+    } catch (err) {
+      if (err.message.includes("Network Error")) {
+        setError("Network error occurred. Please check your connection.");
+      } else {
+        setError(err.message || "An unknown error occurred.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadReflections = async () => {
-      setIsLoading(true);
-      try {
-        const data = await fetchReflectionList();
-        if (Array.isArray(data)) {
-          const sortedData = data.sort((a, b) => b.id - a.id);
-          setReflections(sortedData);
-        } else {
-          throw new Error("Data format mismatch");
-        }
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadReflections();
   }, []);
 
-  const handleLoadMore = () => {
-    setDisplayCount((prevCount) => prevCount + 12);
-  };
-
-  return (
-    <Container sx={{ py: 4 }}>
-      <WelcomeSection navigate={navigate} />
-      {loading ? (
-        <LoadingSection />
-      ) : error ? (
-        <ErrorSection error={error} />
-      ) : (
-        <ReflectionsGrid
-          reflections={reflections}
-          displayCount={displayCount}
-        />
-      )}
-      {!loading && displayCount < reflections.length && (
-        <LoadMoreButton onClick={handleLoadMore} />
-      )}
-      <ContactSection navigate={navigate} />
-    </Container>
-  );
+  return { reflections, loading, error, reload: loadReflections };
 };
+
+const LoadingIndicator = ({ isLoading }) =>
+  isLoading && (
+    <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+      <CircularProgress size={24} />
+    </Box>
+  );
+
+const ErrorSection = ({ error, onRetry }) => (
+  <Box textAlign="center" sx={{ my: 4 }}>
+    <Typography variant="h6" color="error">
+      {error || "An unknown error occurred. Please try again later."}
+    </Typography>
+    {onRetry && (
+      <Button
+        onClick={onRetry}
+        variant="outlined"
+        color="primary"
+        sx={{ mt: 2 }}
+      >
+        Retry
+      </Button>
+    )}
+  </Box>
+);
+
+const ReflectionsGrid = ({ reflections, isLoading }) => (
+  <Box>
+    <Grid container spacing={4} sx={{ mb: 4 }}>
+      {reflections.map((reflection) => (
+        <Grid item xs={12} sm={6} md={4} key={reflection.id}>
+          <ReflectionCard reflection={reflection} />
+        </Grid>
+      ))}
+    </Grid>
+    {!isLoading && reflections.length === 0 && (
+      <Typography align="center" color="textSecondary" sx={{ my: 4 }}>
+        No reflections available. Please check back later!
+      </Typography>
+    )}
+  </Box>
+);
+
+const LoadMoreButton = ({ onClick, isLoading, disabled }) => (
+  <Box textAlign="center" my={4}>
+    <Button
+      variant="contained"
+      onClick={onClick}
+      disabled={isLoading || disabled}
+      aria-label="Load more reflections"
+    >
+      {isLoading ? "Loading..." : "Load More"}
+    </Button>
+    <LoadingIndicator isLoading={isLoading} />
+  </Box>
+);
 
 const WelcomeSection = ({ navigate }) => (
   <Box textAlign="center" mb={4}>
@@ -80,40 +116,6 @@ const WelcomeSection = ({ navigate }) => (
       aria-label="Learn more about me"
     >
       Learn More About Me
-    </Button>
-  </Box>
-);
-
-const LoadingSection = () => (
-  <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-    <CircularProgress />
-  </Box>
-);
-
-const ErrorSection = ({ error }) => (
-  <Typography variant="h6" color="error" align="center" sx={{ my: 4 }}>
-    {error}
-  </Typography>
-);
-
-const ReflectionsGrid = ({ reflections, displayCount }) => (
-  <Grid container spacing={4} sx={{ mb: 4 }}>
-    {reflections.slice(0, displayCount).map((reflection) => (
-      <Grid item xs={12} sm={6} md={4} key={reflection.id}>
-        <ReflectionCard reflection={reflection} />
-      </Grid>
-    ))}
-  </Grid>
-);
-
-const LoadMoreButton = ({ onClick }) => (
-  <Box textAlign="center" my={4}>
-    <Button
-      variant="contained"
-      onClick={onClick}
-      aria-label="Load more reflections"
-    >
-      Load More
     </Button>
   </Box>
 );
@@ -136,5 +138,41 @@ const ContactSection = ({ navigate }) => (
     </Button>
   </Box>
 );
+
+const HomePage = () => {
+  const { reflections, loading, error, reload } = useFetchReflections();
+  const [displayCount, setDisplayCount] = useState(12);
+  const navigate = useNavigate();
+
+  const handleLoadMore = () => {
+    setDisplayCount((prev) => Math.min(prev + 12, reflections.length));
+  };
+
+  const visibleReflections = useMemo(
+    () => reflections.slice(0, displayCount),
+    [reflections, displayCount]
+  );
+
+  return (
+    <Container sx={{ py: 4 }}>
+      <WelcomeSection navigate={navigate} />
+      {error ? (
+        <ErrorSection error={error} onRetry={reload} />
+      ) : loading && reflections.length === 0 ? (
+        <LoadingIndicator isLoading={loading} />
+      ) : (
+        <ReflectionsGrid reflections={visibleReflections} isLoading={loading} />
+      )}
+      {!loading && displayCount < reflections.length && (
+        <LoadMoreButton
+          onClick={handleLoadMore}
+          isLoading={loading}
+          disabled={displayCount >= reflections.length}
+        />
+      )}
+      <ContactSection navigate={navigate} />
+    </Container>
+  );
+};
 
 export default HomePage;

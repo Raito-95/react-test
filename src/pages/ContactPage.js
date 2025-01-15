@@ -12,13 +12,9 @@ import {
 import { submitContactForm } from "../services/api";
 import { CSRFContext } from "../index";
 
-const ContactPage = () => {
-  const csrfToken = useContext(CSRFContext);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+const useContactForm = (initialData) => {
+  const { csrfToken, loading } = useContext(CSRFContext);
+  const [formData, setFormData] = useState(initialData);
   const [emailError, setEmailError] = useState("");
   const [notification, setNotification] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,16 +31,16 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (emailError || !csrfToken) {
+    if (emailError || !csrfToken || loading) {
       setNotification({
         type: "error",
-        message: "Invalid email or missing token.",
+        message: "Invalid email, missing token, or token is loading.",
       });
       return;
     }
     setIsSubmitting(true);
     try {
-      await submitContactForm(formData, csrfToken);
+      await submitContactForm(formData);
       setNotification({
         type: "success",
         message: "Thanks for reaching out! We'll get back to you soon.",
@@ -61,10 +57,43 @@ const ContactPage = () => {
     }
   };
 
+  return {
+    formData,
+    emailError,
+    notification,
+    isSubmitting,
+    handleInputChange,
+    handleSubmit,
+    loading,
+  };
+};
+
+const ContactPage = () => {
+  const {
+    formData,
+    emailError,
+    notification,
+    isSubmitting,
+    handleInputChange,
+    handleSubmit,
+    loading,
+  } = useContactForm({ name: "", email: "", message: "" });
+
+  if (loading) {
+    return (
+      <Container maxWidth="md" sx={{ py: 4, textAlign: "center" }}>
+        <CircularProgress />
+        <Typography variant="h6" mt={2}>
+          Loading form...
+        </Typography>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <HeaderSection />
-      <NotificationSection notification={notification} />
+      {notification && <NotificationSection notification={notification} />}
       <ContactForm
         formData={formData}
         handleInputChange={handleInputChange}
@@ -84,12 +113,11 @@ const HeaderSection = () => (
   </Box>
 );
 
-const NotificationSection = ({ notification }) =>
-  notification && (
-    <Box my={2}>
-      <Alert severity={notification.type}>{notification.message}</Alert>
-    </Box>
-  );
+const NotificationSection = ({ notification }) => (
+  <Box my={2}>
+    <Alert severity={notification.type}>{notification.message}</Alert>
+  </Box>
+);
 
 const ContactForm = ({
   formData,

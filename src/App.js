@@ -14,7 +14,6 @@ import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import TopBar from "./components/TopBar";
 import EntranceAnimation from "./components/EntranceAnimation";
-import { fetchCSRFToken } from "./services/api";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -23,36 +22,30 @@ const ArticlePage = lazy(() => import("./pages/ArticlePage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const SensorPage = lazy(() => import("./pages/SensorPage"));
 
-const Loading = () => (
+const Loading = ({ error }) => (
   <Box
     display="flex"
     justifyContent="center"
     alignItems="center"
     height="100vh"
   >
-    <CircularProgress />
+    {error ? (
+      <Typography variant="h6" color="error">
+        Failed to load the page. Please try again later.
+      </Typography>
+    ) : (
+      <CircularProgress />
+    )}
   </Box>
 );
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("ErrorBoundary caught an error", error, errorInfo);
-    }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
+const ErrorBoundary = ({ children, fallback }) => {
+  try {
+    return children;
+  } catch (error) {
+    console.error("ErrorBoundary caught an error:", error);
+    return (
+      fallback || (
         <Box
           display="flex"
           justifyContent="center"
@@ -63,18 +56,13 @@ class ErrorBoundary extends React.Component {
             Oops! Something went wrong. Please try again later.
           </Typography>
         </Box>
-      );
-    }
-
-    return this.props.children;
+      )
+    );
   }
-}
+};
 
 const ScrollTop = ({ children }) => {
-  const trigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 100,
-  });
+  const trigger = useScrollTrigger({ disableHysteresis: true, threshold: 100 });
 
   const handleClick = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -101,29 +89,6 @@ const ScrollTop = ({ children }) => {
   );
 };
 
-const CSRFLoader = ({ children }) => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadCSRFToken = async () => {
-      try {
-        await fetchCSRFToken();
-        setLoading(false);
-      } catch (error) {
-        console.error("Error loading CSRF token:", error);
-      }
-    };
-
-    loadCSRFToken();
-  }, []);
-
-  if (loading) {
-    return <Loading />;
-  }
-
-  return children;
-};
-
 const App = () => {
   const storedThemeMode = localStorage.getItem("themeMode") || "light";
   const [themeMode, setThemeMode] = useState(storedThemeMode);
@@ -145,48 +110,42 @@ const App = () => {
   }, [themeMode]);
 
   const theme = createTheme({
-    palette: {
-      mode: themeMode,
-    },
-    typography: {
-      fontFamily: '"Georgia", serif',
-    },
+    palette: { mode: themeMode },
+    typography: { fontFamily: '"Georgia", serif' },
   });
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <CSRFLoader>
-        <Router>
-          <div id="back-to-top-anchor" />
-          {animationCompleted ? (
-            <>
-              <TopBar setThemeMode={setThemeMode} />
-              <ErrorBoundary>
-                <Suspense fallback={<Loading />}>
-                  <Box sx={{ pt: "64px", px: { xs: 2, sm: 3, md: 4 }, pb: 4 }}>
-                    <Routes>
-                      <Route path="/" element={<HomePage />} />
-                      <Route path="/about" element={<AboutPage />} />
-                      <Route path="/anime" element={<AnimePage />} />
-                      <Route path="/article" element={<ArticlePage />} />
-                      <Route path="/contact" element={<ContactPage />} />
-                      <Route path="/sensor" element={<SensorPage />} />
-                    </Routes>
-                  </Box>
-                </Suspense>
-              </ErrorBoundary>
-            </>
-          ) : (
-            <EntranceAnimation>Welcome</EntranceAnimation>
-          )}
-          <ScrollTop>
-            <Fab color="primary" size="small" aria-label="scroll back to top">
-              <ArrowUpwardIcon />
-            </Fab>
-          </ScrollTop>
-        </Router>
-      </CSRFLoader>
+      <Router>
+        <div id="back-to-top-anchor" />
+        {animationCompleted ? (
+          <>
+            <TopBar setThemeMode={setThemeMode} />
+            <ErrorBoundary fallback={<Loading error />}>
+              <Suspense fallback={<Loading />}>
+                <Box sx={{ pt: "64px", px: { xs: 2, sm: 3, md: 4 }, pb: 4 }}>
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/anime" element={<AnimePage />} />
+                    <Route path="/article" element={<ArticlePage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/sensor" element={<SensorPage />} />
+                  </Routes>
+                </Box>
+              </Suspense>
+            </ErrorBoundary>
+          </>
+        ) : (
+          <EntranceAnimation>Welcome</EntranceAnimation>
+        )}
+        <ScrollTop>
+          <Fab color="primary" size="small" aria-label="scroll back to top">
+            <ArrowUpwardIcon />
+          </Fab>
+        </ScrollTop>
+      </Router>
     </ThemeProvider>
   );
 };

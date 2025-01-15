@@ -6,16 +6,14 @@ import {
   TextField,
   IconButton,
   Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  CardActionArea,
+  CircularProgress,
   Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  CircularProgress,
+  Card,
+  CardActionArea,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import debounce from "lodash.debounce";
@@ -25,10 +23,14 @@ const BASE_IMAGE_URL = `${process.env.REACT_APP_API_BASE_URL}get_image/?`;
 
 const ArticlePage = () => {
   const [articles, setArticles] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [filteredArticles, setFilteredArticles] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const articlesPerPage = 10;
+
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -40,9 +42,9 @@ const ArticlePage = () => {
       const sortedData = data.sort((a, b) => b.id - a.id);
       setArticles(sortedData);
       setFilteredArticles(sortedData);
-    } catch (error) {
+    } catch (err) {
       setError("Oops! Couldn't fetch the articles.");
-      console.error("Error fetching articles:", error);
+      console.error("Error fetching articles:", err);
     } finally {
       setIsLoading(false);
     }
@@ -52,12 +54,19 @@ const ArticlePage = () => {
     fetchArticles();
   }, [fetchArticles]);
 
+  const highlightSearchTerm = (text, term) => {
+    if (!term) return text;
+    const regex = new RegExp(`(${term})`, "gi");
+    return text.replace(regex, (match) => `<mark>${match}</mark>`);
+  };
+
   const debouncedSearchCallback = useCallback(
     (term) => {
       const filtered = articles.filter((article) =>
         article.title.toLowerCase().includes(term.toLowerCase())
       );
       setFilteredArticles(filtered);
+      setCurrentPage(1);
     },
     [articles]
   );
@@ -67,6 +76,15 @@ const ArticlePage = () => {
   useEffect(() => {
     debouncedSearch(searchTerm);
   }, [searchTerm, debouncedSearch]);
+
+  const preventImageDownload = (e) => {
+    e.preventDefault();
+  };
+
+  const paginatedArticles = filteredArticles.slice(
+    (currentPage - 1) * articlesPerPage,
+    currentPage * articlesPerPage
+  );
 
   const handleOpenDialog = useCallback((article) => {
     setSelectedArticle(article);
@@ -82,10 +100,6 @@ const ArticlePage = () => {
     ));
   }, []);
 
-  const preventImageDownload = (e) => {
-    e.preventDefault();
-  };
-
   return (
     <Container maxWidth="lg" sx={{ padding: 2 }}>
       <HeaderSection />
@@ -97,9 +111,15 @@ const ArticlePage = () => {
       <ContentSection
         isLoading={isLoading}
         error={error}
-        filteredArticles={filteredArticles}
+        paginatedArticles={paginatedArticles}
         handleOpenDialog={handleOpenDialog}
         preventImageDownload={preventImageDownload}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        totalArticles={filteredArticles.length}
+        articlesPerPage={articlesPerPage}
+        searchTerm={searchTerm}
+        highlightSearchTerm={highlightSearchTerm}
       />
       <ArticleDialog
         openDialog={openDialog}
@@ -144,9 +164,15 @@ const SearchSection = ({ searchTerm, setSearchTerm, debouncedSearch }) => (
 const ContentSection = ({
   isLoading,
   error,
-  filteredArticles,
+  paginatedArticles,
   handleOpenDialog,
   preventImageDownload,
+  currentPage,
+  setCurrentPage,
+  totalArticles,
+  articlesPerPage,
+  searchTerm,
+  highlightSearchTerm,
 }) => (
   <Box sx={{ paddingX: 4 }}>
     {isLoading ? (
@@ -157,73 +183,28 @@ const ContentSection = ({
       <Typography variant="body1" color="error" sx={{ textAlign: "center" }}>
         {error}
       </Typography>
-    ) : filteredArticles.length > 0 ? (
-      <Grid container spacing={4}>
-        {filteredArticles.map((article, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card>
-              <CardActionArea onClick={() => handleOpenDialog(article)}>
-                <Box
-                  sx={{
-                    position: "relative",
-                    height: {
-                      xs: 150,
-                      sm: 200,
-                      md: 250,
-                      lg: 300,
-                      xl: 350,
-                    },
-                    overflow: "hidden",
-                  }}
-                  onContextMenu={preventImageDownload}
-                >
-                  <CardMedia
-                    component="img"
-                    image={`${BASE_IMAGE_URL}image_id=${article.id}&type=article`}
-                    alt={article.title}
-                    sx={{
-                      height: "100%",
-                      objectFit: "contain",
-                      pointerEvents: "none",
-                    }}
-                    onDragStart={(e) => e.preventDefault()}
-                  />
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: "100%",
-                      zIndex: 1,
-                      backgroundColor: "rgba(0, 0, 0, 0.001)",
-                    }}
-                  ></Box>
-                </Box>
-                <CardContent>
-                  <Typography variant="h6" noWrap>
-                    {article.title}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {new Date(article.date).toLocaleDateString()}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      display: "-webkit-box",
-                      overflow: "hidden",
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: "vertical",
-                    }}
-                  >
-                    {article.summary}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+    ) : paginatedArticles.length > 0 ? (
+      <>
+        <Grid container spacing={4}>
+          {paginatedArticles.map((article, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <ArticleCard
+                article={article}
+                handleOpenDialog={handleOpenDialog}
+                preventImageDownload={preventImageDownload}
+                searchTerm={searchTerm}
+                highlightSearchTerm={highlightSearchTerm}
+              />
+            </Grid>
+          ))}
+        </Grid>
+        <PaginationControls
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalArticles={totalArticles}
+          articlesPerPage={articlesPerPage}
+        />
+      </>
     ) : (
       <Typography variant="body1" sx={{ padding: 2, textAlign: "center" }}>
         No articles found. Try searching for something else!
@@ -231,6 +212,73 @@ const ContentSection = ({
     )}
   </Box>
 );
+
+const ArticleCard = ({
+  article,
+  handleOpenDialog,
+  preventImageDownload,
+  searchTerm,
+  highlightSearchTerm,
+}) => (
+  <Card>
+    <Box
+      sx={{
+        position: "relative",
+        height: { xs: 150, sm: 200, md: 250 },
+        overflow: "hidden",
+      }}
+      onContextMenu={preventImageDownload}
+    >
+      <img
+        src={`${BASE_IMAGE_URL}image_id=${article.id}&type=article`}
+        alt={article.title}
+        style={{ width: "100%", objectFit: "contain" }}
+        onDragStart={(e) => e.preventDefault()}
+      />
+    </Box>
+    <CardActionArea onClick={() => handleOpenDialog(article)}>
+      <Typography
+        variant="h6"
+        dangerouslySetInnerHTML={{
+          __html: highlightSearchTerm(article.title, searchTerm),
+        }}
+        sx={{ padding: 1 }}
+      />
+      <Typography variant="body2" sx={{ padding: 1 }} color="textSecondary">
+        {new Date(article.date).toLocaleDateString()}
+      </Typography>
+    </CardActionArea>
+  </Card>
+);
+
+const PaginationControls = ({
+  currentPage,
+  setCurrentPage,
+  totalArticles,
+  articlesPerPage,
+}) => {
+  const totalPages = Math.ceil(totalArticles / articlesPerPage);
+
+  return (
+    <Box sx={{ display: "flex", justifyContent: "center", marginTop: 3 }}>
+      <Button
+        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+        disabled={currentPage === 1}
+      >
+        Previous
+      </Button>
+      <Typography sx={{ marginX: 2 }}>
+        Page {currentPage} of {totalPages}
+      </Typography>
+      <Button
+        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+        disabled={currentPage === totalPages}
+      >
+        Next
+      </Button>
+    </Box>
+  );
+};
 
 const ArticleDialog = ({
   openDialog,
