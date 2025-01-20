@@ -16,7 +16,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { fetchAnimeList } from "../services/api";
+import { fetchAnimeList } from "../services/Api";
 
 const categoryOrder = ["Fall", "Summer", "Spring", "Winter", "Movie"];
 

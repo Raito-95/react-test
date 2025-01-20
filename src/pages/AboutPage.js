@@ -10,7 +10,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { fetchImage as fetchImageAPI } from "../services/api";
+import { fetchImage as fetchImageAPI } from "../services/Api";
 
 const fetchImage = async (imageId, onSuccess, onError) => {
   try {

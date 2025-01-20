@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { fetchCSRFToken } from "../services/api";
+import { fetchCSRFToken } from "../services/Api";
 
 const CSRFContext = createContext();
 

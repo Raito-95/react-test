@@ -17,9 +17,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import debounce from "lodash.debounce";
-import { fetchArticleList } from "../services/api";
-
-const BASE_IMAGE_URL = `${process.env.REACT_APP_API_BASE_URL}get_image/?`;
+import { fetchArticleList, fetchImage } from "../services/Api";
 
 const ArticlePage = () => {
   const [articles, setArticles] = useState([]);
@@ -219,37 +217,59 @@ const ArticleCard = ({
   preventImageDownload,
   searchTerm,
   highlightSearchTerm,
-}) => (
-  <Card>
-    <Box
-      sx={{
-        position: "relative",
-        height: { xs: 150, sm: 200, md: 250 },
-        overflow: "hidden",
-      }}
-      onContextMenu={preventImageDownload}
-    >
-      <img
-        src={`${BASE_IMAGE_URL}image_id=${article.id}&type=article`}
-        alt={article.title}
-        style={{ width: "100%", objectFit: "contain" }}
-        onDragStart={(e) => e.preventDefault()}
-      />
-    </Box>
-    <CardActionArea onClick={() => handleOpenDialog(article)}>
-      <Typography
-        variant="h6"
-        dangerouslySetInnerHTML={{
-          __html: highlightSearchTerm(article.title, searchTerm),
+}) => {
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    const loadImage = async () => {
+      try {
+        const blob = await fetchImage(article.id, "article");
+        const url = URL.createObjectURL(blob);
+        setImageUrl(url);
+      } catch (error) {
+        console.error("Failed to load image:", error);
+      }
+    };
+
+    loadImage();
+  }, [article.id]);
+
+  return (
+    <Card>
+      <Box
+        sx={{
+          position: "relative",
+          height: { xs: 150, sm: 200, md: 250 },
+          overflow: "hidden",
         }}
-        sx={{ padding: 1 }}
-      />
-      <Typography variant="body2" sx={{ padding: 1 }} color="textSecondary">
-        {new Date(article.date).toLocaleDateString()}
-      </Typography>
-    </CardActionArea>
-  </Card>
-);
+        onContextMenu={preventImageDownload}
+      >
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={article.title}
+            style={{ width: "100%", objectFit: "contain" }}
+            onDragStart={(e) => e.preventDefault()}
+          />
+        ) : (
+          <CircularProgress />
+        )}
+      </Box>
+      <CardActionArea onClick={() => handleOpenDialog(article)}>
+        <Typography
+          variant="h6"
+          dangerouslySetInnerHTML={{
+            __html: highlightSearchTerm(article.title, searchTerm),
+          }}
+          sx={{ padding: 1 }}
+        />
+        <Typography variant="body2" sx={{ padding: 1 }} color="textSecondary">
+          {new Date(article.date).toLocaleDateString()}
+        </Typography>
+      </CardActionArea>
+    </Card>
+  );
+};
 
 const PaginationControls = ({
   currentPage,

@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ReflectionCard from "../components/ReflectionCard";
-import { fetchReflectionList } from "../services/api";
+import { fetchReflectionList } from "../services/Api";
 
 const useFetchReflections = (initialReflections = []) => {
   const [reflections, setReflections] = useState(initialReflections);

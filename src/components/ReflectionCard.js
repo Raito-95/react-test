@@ -8,7 +8,7 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import { fetchImage } from "../services/api";
+import { fetchImage } from "../services/Api";
 
 const useImageLoader = (imageId, type) => {
   const [imageUrl, setImageUrl] = React.useState(null);

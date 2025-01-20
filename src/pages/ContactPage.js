@@ -9,7 +9,7 @@ import {
   CircularProgress,
   Container,
 } from "@mui/material";
-import { submitContactForm } from "../services/api";
+import { submitContactForm } from "../services/Api";
 import { CSRFContext } from "../index";
 
 const useContactForm = (initialData) => {
