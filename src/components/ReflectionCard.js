@@ -139,10 +139,10 @@ function ReflectionCard({ reflection }) {
             p: 2,
           }}
         >
-          <Typography gutterBottom variant="h6" noWrap>
+          <Typography gutterBottom variant="h6">
             {sanitizeText(reflection.title)}
           </Typography>
-          <Typography variant="body2" color="textSecondary" noWrap>
+          <Typography variant="body2" color="textSecondary">
             {sanitizeText(reflection.description)}
           </Typography>
         </CardContent>
