@@ -91,24 +91,40 @@ const AnimePage = () => {
     fetchAnimeData();
   }, [fetchAnimeData]);
 
-  const handleYearFilter = useCallback(
-    (selectedYear) => {
-      const filtered = animeData.list.filter(
-        (anime) => anime.year === selectedYear
-      );
-      setFilteredAnimes(filtered);
-    },
-    [animeData.list]
-  );
+  useEffect(() => {
+    setFilteredAnimes(
+      animeData.list.filter((anime) => anime.year === animeData.year)
+    );
+  }, [animeData.list, animeData.year]);
 
   const handleSearch = useCallback(
     (term) => {
-      const filtered = animeData.list.filter((anime) =>
-        anime.name.toLowerCase().includes(term.toLowerCase())
+      setSearchTerm(term);
+      setFilteredAnimes(
+        animeData.list.filter(
+          (anime) =>
+            anime.name.toLowerCase().includes(term.toLowerCase()) &&
+            (animeData.year ? anime.year === animeData.year : true)
+        )
       );
-      setFilteredAnimes(filtered);
     },
-    [animeData.list]
+    [animeData.list, animeData.year]
+  );
+
+  const handleYearFilter = useCallback(
+    (selectedYear) => {
+      setAnimeData((prev) => ({ ...prev, year: selectedYear }));
+      setFilteredAnimes(
+        animeData.list.filter(
+          (anime) =>
+            (selectedYear ? anime.year === selectedYear : true) &&
+            (searchTerm
+              ? anime.name.toLowerCase().includes(searchTerm.toLowerCase())
+              : true)
+        )
+      );
+    },
+    [animeData.list, searchTerm]
   );
 
   const toggleTitleDisplay = useCallback((anime) => {
@@ -172,7 +188,7 @@ const SearchSection = ({
       variant="outlined"
       placeholder="Search for anime..."
       value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
+      onChange={(e) => handleSearch(e.target.value)}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
@@ -234,7 +250,6 @@ const ContentSection = ({
               {animesForCategory.map((anime) => (
                 <Grid item xs={getGridItemSize()} key={anime.url}>
                   <Card
-                    onClick={() => toggleTitleDisplay(anime)}
                     sx={{
                       cursor: "pointer",
                       display: "flex",
@@ -249,10 +264,28 @@ const ContentSection = ({
                         width: "100%",
                         height: "auto",
                         objectFit: "cover",
+                        cursor: "pointer",
                       }}
+                      onClick={() =>
+                        window.open(anime.url, "_blank", "noopener,noreferrer")
+                      }
                     />
-                    <CardContent>
-                      <Typography variant="subtitle1" align="center">
+                    <CardContent
+                      sx={{
+                        minHeight: "96px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle1"
+                        align="center"
+                        sx={{
+                          cursor: "pointer",
+                        }}
+                        onClick={() => toggleTitleDisplay(anime)}
+                      >
                         {anime.showTitle ? anime.title : anime.name}
                       </Typography>
                     </CardContent>
