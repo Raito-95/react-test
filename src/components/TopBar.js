@@ -69,9 +69,11 @@ const TopBar = ({ setThemeMode }) => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollPosition = window.scrollY;
-      const threshold = 20;
+      const threshold = 15;
 
-      if (currentScrollPosition - scrollPosition > threshold) {
+      if (currentScrollPosition === 0) {
+        setHide(false);
+      } else if (currentScrollPosition - scrollPosition > threshold) {
         setHide(true);
       } else if (scrollPosition - currentScrollPosition > threshold) {
         setHide(false);
