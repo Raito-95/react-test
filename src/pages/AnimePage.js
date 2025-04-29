@@ -101,14 +101,12 @@ const AnimePage = () => {
     (term) => {
       setSearchTerm(term);
       setFilteredAnimes(
-        animeData.list.filter(
-          (anime) =>
-            anime.name.toLowerCase().includes(term.toLowerCase()) &&
-            (animeData.year ? anime.year === animeData.year : true)
+        animeData.list.filter((anime) =>
+          anime.name.toLowerCase().includes(term.toLowerCase())
         )
       );
     },
-    [animeData.list, animeData.year]
+    [animeData.list]
   );
 
   const handleYearFilter = useCallback(
@@ -177,7 +175,6 @@ const HeaderSection = () => (
 
 const SearchSection = ({
   searchTerm,
-  setSearchTerm,
   animeData,
   handleSearch,
   handleYearFilter,
@@ -257,25 +254,38 @@ const ContentSection = ({
                       height: "100%",
                     }}
                   >
-                    <img
-                      src={anime.image_url}
-                      alt={anime.name}
-                      style={{
-                        width: "100%",
-                        height: "auto",
-                        objectFit: "cover",
+                    <Box
+                      sx={{
+                        height: "350px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
                         cursor: "pointer",
                       }}
                       onClick={() =>
                         window.open(anime.url, "_blank", "noopener,noreferrer")
                       }
-                    />
+                    >
+                      <img
+                        src={anime.image_url}
+                        alt={anime.name}
+                        style={{
+                          maxWidth: "100%",
+                          maxHeight: "100%",
+                          objectFit: "contain",
+                          display: "block",
+                        }}
+                      />
+                    </Box>
+
                     <CardContent
                       sx={{
                         minHeight: "96px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        textAlign: "center",
                       }}
                     >
                       <Typography
